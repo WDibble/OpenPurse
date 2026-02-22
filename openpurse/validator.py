@@ -79,8 +79,8 @@ class Validator:
         if len(iban) > 100:
              return f"Invalid IBAN structure: excessively long string rejected."
 
-        # 1. Sanitize only standard formatting characters (spaces and hyphens)
-        cleaner_pattern = re.compile(r"[ \-]")
+        # 1. Sanitize only standard formatting characters (spaces, hyphens, and dots)
+        cleaner_pattern = re.compile(r"[ \-\.]")
         formatted_iban = cleaner_pattern.sub("", iban.strip().upper())
 
         # 2. Strict ISO 13616 Format check on the resulting alphanumeric string

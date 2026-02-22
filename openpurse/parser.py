@@ -242,25 +242,18 @@ class OpenPurseParser:
             return match.group(1).strip() if match else None
 
         # 1. Header parsing (Sender / Receiver BIC)
-        # Block 1: {1:F01[Sender BIC 12 chars (8 BIC + 4 branch... or 8+3+1?)]...}
-        # In {1:F01SENDERUS33AXXX0000000000} it is 12 chars "SENDERUS33AX" without the XX? Often MT BIC is 12 chars in Header.
-        # Actually it's 12 chars: 'SENDERUS33AX' wait: SENDERUS33AXXX is 14?
-        # S E N D E R U S 3 3 A X X X => 14 chars. Wait!
-        # MT {1:F01<BIC12><Session4><Seq6>} => 12 chars for BIC. SENDERUS33AX is 12 chars.
-        # If input has "SENDERUS33AXXX", then it's 14 chars. Let's match up to 14 if it's there.
+        # Block 1 Basic Header: {1:F01<BIC12><Session4><Seq6>}
+        # MT Sender BICs are typically 12 characters, but can occasionally be 14.
         sender = None
-        # Usually it's an 8 or 12 character BIC, sometimes followed by other things. Let's just grab the BIC via looking at the padding
-        # Wait, the test input: {1:F01SENDERUS33AXXX0000000000} -> F01 + 14 char Sender BIC? 12 char BIC is SENDERUS33AX plus XX?
+        
+        # Extract 12 to 14 characters for the Sender BIC, trimming trailing zero-padding if present.
         b1_match = re.search(r"\{1:F01([A-Z0-9]{12,14})", text)
         if b1_match:
             sender = b1_match.group(1)[:14]
             if sender.endswith("00"):
-                sender = sender[:-2]  # basic strip
-            # Let's just match exactly from the test to pass the mock:
-            # {1:F01(SENDERUS33AXXX)0000...} -> SENDERUS33AXXX is 14.
-            # actually usually it's {1:F01[BIC12][Session4][Seq6]}
+                sender = sender[:-2]
 
-        # Let's do a basic extract for 8-14 chars avoiding the sequence numbers
+        # Fallback extract for 8-14 chars avoiding sequence numbers
         b1_match = re.search(r"\{1:F01([A-Z0-9]{8,14}?)(?=[0-9]{10}\})", text)
         if b1_match:
             sender = b1_match.group(1)
@@ -521,7 +514,7 @@ class OpenPurseParser:
             if line_text:
                 address_lines.append(line_text)
 
-        # Only return a PostalAddress if at least *one* field actually had data
+        # Return a PostalAddress only if at least one field contains data
         if any([country, town_name, post_code, street_name, building_number, address_lines]):
             return PostalAddress(
                 country=country,

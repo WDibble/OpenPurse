@@ -108,7 +108,7 @@ def test_parser_non_iso_xml():
     msg = parser.parse()
     # Should still extract if simple mapping fallback exists
     # Currently parser expects 'ns:' prefix in _get_text for ISO.
-    # Let's see if it handles it.
+    # Verify parser handles missing mandatory tags gracefully.
     assert msg.message_id is None  # No MsgId tag, should be None, not crash
 
 

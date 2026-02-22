@@ -22,7 +22,7 @@ def test_valid_schema():
 
     parser = OpenPurseParser(valid_pacs)
     # The actual docs/ schemas are rigorous so this minimal mock might fail XSD requirements.
-    # However, let's just make sure the method runs and returns a report safely.
+    # Verify the validation method executes and returns a report safely.
     report = parser.validate_schema()
     assert isinstance(report, ValidationReport)
 

@@ -122,7 +122,7 @@ def test_extreme_corruption_amounts_and_currencies():
     assert any("empty string" in e for e in reports["empty"].errors)
     
     # Currency should only be alphabetic (we haven't strictly enforced this in validator yet, 
-    # but let's check length constraints we did add)
+    # Check the enforced length constraints instead.
     msg_wrong_len_curr = PaymentMessage(amount="100", currency="US")
     assert Validator.validate(msg_wrong_len_curr).is_valid is False
 

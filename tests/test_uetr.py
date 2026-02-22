@@ -24,7 +24,7 @@ def test_uetr_generation_and_extraction():
     roundtrip_msg = parser.parse()
 
     # In MT, the receiver/sender BICs are 12 chars (e.g. padded with X).
-    # Since we need to test validation, let's just assert UETR here
+    # Assert UETR explicitly to verify extraction.
     # and skip validating the auto-padded BICs which aren't always 11 chars.
 
     assert roundtrip_msg.uetr is not None

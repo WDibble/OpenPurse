@@ -158,8 +158,7 @@ def test_translator_edge_cases():
         receiver_bic="BANKGB22",
     )
 
-    # 103 without amount should still generate framework, or maybe raise ValueError
-    # Actually Translator handles it by just omitting or putting empty if no strict validation
+    # Generates framework with empty or omitted fields where strict validation is absent.
     mt_bytes = Translator.to_mt(msg, "103")
     assert b"THIS_MESSAGE_ID_IS_WAY_TOO_LONG"[:16] in mt_bytes  # TRUNCATED safely
 
