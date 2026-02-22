@@ -108,11 +108,18 @@ parser = openpurse.OpenPurseParser(mt_data)
 # 3. Translate between MT and MX formats
 msg_struct = parser.parse()
 
-# Convert to MT103 byte string
+# Convert to SWIFT MT103 format
 mt_bytes = openpurse.Translator.to_mt(msg_struct, "103")
 
 # Convert to ISO 20022 XML (e.g. pacs.008, camt.004)
 mx_bytes = openpurse.Translator.to_mx(msg_struct, "camt.004")
+
+# 4. Deep parsing for specific schemas (e.g. camt.054, pacs.008)
+camt_data = b'''... your standard CAMT 054 XML ...'''
+parser = openpurse.OpenPurseParser(camt_data)
+detailed_msg = parser.parse_detailed()
+# Returns a typed `Camt054Message` object wrapping entries, notifications, etc.
+# detailed_msg.entries[0]["reference"] == "REF001"
 ```
 
 ## Supported Fields

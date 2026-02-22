@@ -1,5 +1,5 @@
 import pytest
-from openpurse.models import PaymentMessage
+from openpurse.models import PaymentMessage, Camt053Message
 from openpurse.translator import Translator
 from openpurse.parser import OpenPurseParser
 
@@ -61,3 +61,81 @@ def test_unsupported_translations():
         Translator.to_mt(msg, "999")
     with pytest.raises(NotImplementedError):
         Translator.to_mx(msg, "unknown.schema")
+
+def test_translate_202_pacs009():
+    msg = PaymentMessage(
+        message_id="BANK2BANK",
+        amount="1000000.00",
+        currency="USD",
+        sender_bic="BBBBUS33",
+        receiver_bic="CCCCGB22"
+    )
+    mt_bytes = Translator.to_mt(msg, "202")
+    assert b"{2:I202CCCCGB22" in mt_bytes
+    assert b":58A:/CCCCGB22" in mt_bytes
+    assert b":50K:" not in mt_bytes # 202 omits ordering customer
+    
+    mx_bytes = Translator.to_mx(msg, "pacs.009")
+    assert b"<FICdtTrf>" in mx_bytes
+    assert b"<BICFI>BBBBUS33</BICFI>" in mx_bytes
+
+def test_translate_900_910_camt054():
+    msg = PaymentMessage(
+        message_id="NOTIFYDEBIT",
+        amount="-50.00",
+        currency="EUR",
+        sender_bic="BANKDEFF",
+        receiver_bic="CUST1234",
+        debtor_name="Alice (Debited)"
+    )
+    mt_bytes = Translator.to_mt(msg, "900")
+    assert b"{2:I900CUST1234" in mt_bytes
+    assert b":52A:/BANKDEFF" in mt_bytes
+    assert b"Alice (Debited)" in mt_bytes
+    assert b"-50,00" in mt_bytes
+
+    mx_bytes = Translator.to_mx(msg, "camt.054")
+    assert b"<CdtDbtInd>DBIT</CdtDbtInd>" in mx_bytes
+    assert b'<Amt Ccy="EUR">50.0</Amt>' in mx_bytes # abs amt
+    
+    msg.amount = "100.00"
+    msg.creditor_name = "Bob (Credited)"
+    mt_bytes_910 = Translator.to_mt(msg, "910")
+    assert b"{2:I910CUST1234" in mt_bytes_910
+    
+    mx_bytes_crdt = Translator.to_mx(msg, "camt.054")
+    assert b"<CdtDbtInd>CRDT</CdtDbtInd>" in mx_bytes_crdt
+
+def test_translate_940_camt053():
+    msg = Camt053Message(
+        message_id="STMT123",
+        amount="1000.25",
+        currency="GBP",
+        sender_bic="BANKGB22",
+        entries=[
+            {
+                "reference": "TXN001",
+                "amount": "500.00",
+                "credit_debit_indicator": "CRDT",
+                "remittance": "Salary"
+            },
+            {
+                "reference": "TXN002",
+                "amount": "25.50",
+                "credit_debit_indicator": "DBIT",
+                "remittance": "Fee"
+            }
+        ]
+    )
+    mt_bytes = Translator.to_mt(msg, "940")
+    assert b"{2:I940" in mt_bytes
+    assert b":61:" in mt_bytes
+    assert b"C500,00NTRFTXN001" in mt_bytes
+    assert b":86:Salary" in mt_bytes
+    assert b"D25,50NTRFTXN002" in mt_bytes
+    
+    mx_bytes = Translator.to_mx(msg, "camt.053")
+    assert b"<BkToCstmrStmt>" in mx_bytes
+    assert b"<NtryRef>TXN001</NtryRef>" in mx_bytes
+    assert b"<CdtDbtInd>CRDT</CdtDbtInd>" in mx_bytes
+    assert b"<CdtDbtInd>DBIT</CdtDbtInd>" in mx_bytes
