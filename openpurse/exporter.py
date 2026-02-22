@@ -1,12 +1,15 @@
-from dataclasses import fields, is_dataclass
-from typing import Any, Dict, List, Optional, Union, get_args, get_origin
 import json
+from dataclasses import fields, is_dataclass
+from typing import Any, Dict, Union, get_args, get_origin
+
 try:
     import yaml
+
     HAS_YAML = True
 except ImportError:
     HAS_YAML = False
 from openpurse import models
+
 
 class Exporter:
     """
@@ -37,18 +40,15 @@ class Exporter:
             return {"type": "number"}
         if py_type is bool:
             return {"type": "boolean"}
-        
+
         if origin is list or py_type is list:
             item_type = args[0] if args else Any
-            return {
-                "type": "array",
-                "items": Exporter._map_python_type_to_openapi(item_type)
-            }
+            return {"type": "array", "items": Exporter._map_python_type_to_openapi(item_type)}
 
         if is_dataclass(py_type):
-            return {"$ref": f"#/components/schemas/{py_type.__name__}"}
+            return {"$ref": f"#/components/schemas/{py_type.__name__}"} if hasattr(py_type, "__name__") else {"$ref": "#/components/schemas/Unknown"}
 
-        return {"type": "string"} # Fallback
+        return {"type": "string"}  # Fallback
 
     @staticmethod
     def generate_schema(model_class: Any) -> Dict[str, Any]:
@@ -66,16 +66,16 @@ class Exporter:
             # Check if it's NOT Optional
             origin = get_origin(field.type)
             args = get_args(field.type)
-            is_optional = (origin is Union and type(None) in args)
+            is_optional = origin is Union and type(None) in args
             if not is_optional:
                 required.append(field.name)
 
-        schema = {
+        schema: Dict[str, Any] = {
             "type": "object",
             "properties": properties,
-            "description": model_class.__doc__.strip() if model_class.__doc__ else None
+            "description": model_class.__doc__.strip() if model_class.__doc__ else None,
         }
-        
+
         if required:
             schema["required"] = required
 
@@ -98,7 +98,7 @@ class Exporter:
             models.Pain001Message,
             models.Pain002Message,
             models.Pain008Message,
-            models.ValidationReport
+            models.ValidationReport,
         ]
 
         schemas = {}
@@ -110,18 +110,16 @@ class Exporter:
             "info": {
                 "title": "OpenPurse Financial Message API",
                 "version": "1.0.0",
-                "description": "API specification for standardized ISO 20022 and SWIFT MT payment messages."
+                "description": "API specification for standardized ISO 20022 and SWIFT MT payment messages.",
             },
-            "components": {
-                "schemas": schemas
-            },
-            "paths": {} # Path definitions are not applicable for a library, but required for valid OpenAPI
+            "components": {"schemas": schemas},
+            "paths": {},  # Path definitions are not applicable for a library, but required for valid OpenAPI
         }
 
         return spec
 
     @staticmethod
-    def export_json(path: str):
+    def export_json(path: str) -> None:
         """
         Saves the OpenAPI spec to a JSON file.
         """
@@ -130,12 +128,14 @@ class Exporter:
             json.dump(spec, f, indent=2)
 
     @staticmethod
-    def export_yaml(path: str):
+    def export_yaml(path: str) -> None:
         """
         Saves the OpenAPI spec to a YAML file.
         """
         if not HAS_YAML:
-            raise ImportError("PyYAML is required for YAML export. Install it with 'pip install PyYAML'.")
+            raise ImportError(
+                "PyYAML is required for YAML export. Install it with 'pip install PyYAML'."
+            )
         spec = Exporter.to_openapi()
         with open(path, "w") as f:
             yaml.dump(spec, f, sort_keys=False)

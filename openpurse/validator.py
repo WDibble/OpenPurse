@@ -1,6 +1,8 @@
 import re
 from typing import Optional
+
 from openpurse.models import PaymentMessage, ValidationReport
+
 
 class Validator:
     """
@@ -9,15 +11,14 @@ class Validator:
     """
 
     _bic_pattern = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
-    _iban_clean_pattern = re.compile(r'[^A-Z0-9]')
+    _iban_clean_pattern = re.compile(r"[^A-Z0-9]")
     _iban_format_pattern = re.compile(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$")
     _uuid4_pattern = re.compile(
-        r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
-        re.I
+        r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I
     )
 
     @staticmethod
-    def _validate_uetr(uetr: str) -> Optional[str]:
+    def _validate_uetr(uetr: Optional[str]) -> Optional[str]:
         """
         Validates that a SWIFT gpi UETR matches the strict UUIDv4 specification.
         """
@@ -26,14 +27,12 @@ class Validator:
 
         clean_uetr = uetr.strip()
         if not Validator._uuid4_pattern.match(clean_uetr):
-            return (
-                f"Invalid UETR format: '{clean_uetr}'. Must be a valid UUIDv4 string."
-            )
+            return f"Invalid UETR format: '{clean_uetr}'. Must be a valid UUIDv4 string."
 
         return None
 
     @staticmethod
-    def _validate_bic(bic: str) -> Optional[str]:
+    def _validate_bic(bic: Optional[str]) -> Optional[str]:
         """
         Validates ISO 9362 BIC formatting strictly mapping to 8 or 11
         alphanumeric constraints.
@@ -54,13 +53,13 @@ class Validator:
     @staticmethod
     def _is_likely_iban(iban: str) -> bool:
         """
-        Heuristic check to determine if an account string *looks* 
-        like an IBAN. An IBAN typically starts with a 2-letter country 
+        Heuristic check to determine if an account string *looks*
+        like an IBAN. An IBAN typically starts with a 2-letter country
         code followed by 2 check digits, and is between 15-34 characters.
         """
         if not iban:
             return False
-        clean_iban = Validator._iban_clean_pattern.sub('', iban.upper())
+        clean_iban = Validator._iban_clean_pattern.sub("", iban.upper())
         return bool(Validator._iban_format_pattern.match(clean_iban))
 
     @staticmethod
@@ -73,7 +72,7 @@ class Validator:
         if not iban:
             return None
 
-        clean_iban = Validator._iban_clean_pattern.sub('', iban.upper())
+        clean_iban = Validator._iban_clean_pattern.sub("", iban.upper())
 
         # 1. Rearrange: move the first four characters to the end
         rearranged = clean_iban[4:] + clean_iban[:4]
@@ -93,9 +92,7 @@ class Validator:
                     "Modulo-97 algorithm."
                 )
         except ValueError:
-            return (
-                f"Invalid IBAN structure: '{clean_iban}'. Could not evaluate checksum."
-            )
+            return f"Invalid IBAN structure: '{clean_iban}'. Could not evaluate checksum."
 
         return None
 
@@ -134,21 +131,19 @@ class Validator:
             if curr_str == "":
                 errors.append("currency is present but is an empty string.")
             elif len(curr_str) != 3:
-                errors.append(
-                    f"currency must be exactly 3 characters, found: '{curr_str}'"
-                )
+                errors.append(f"currency must be exactly 3 characters, found: '{curr_str}'")
         # 2. Dynamic specific attribute IBAN extraction checks
         # Pacs008, Pain001, Pain008, etc. inherently provide debtor/creditor
         # explicit elements if loaded fully
-        if hasattr(message, 'debtor_account'):
-            debtor_acct = getattr(message, 'debtor_account')
+        if hasattr(message, "debtor_account"):
+            debtor_acct = getattr(message, "debtor_account")
             if debtor_acct and Validator._is_likely_iban(debtor_acct):
                 iban_err = Validator._validate_iban_checksum(debtor_acct)
                 if iban_err:
                     errors.append(f"[Debtor Account] {iban_err}")
 
-        if hasattr(message, 'creditor_account'):
-            creditor_acct = getattr(message, 'creditor_account')
+        if hasattr(message, "creditor_account"):
+            creditor_acct = getattr(message, "creditor_account")
             if creditor_acct and Validator._is_likely_iban(creditor_acct):
                 iban_err = Validator._validate_iban_checksum(creditor_acct)
                 if iban_err:
@@ -159,27 +154,21 @@ class Validator:
         # transactions if possible, but the base Validator aims for surface
         # level validation first.
         # Future enhancement: iterate entries/transactions.
-        if hasattr(message, 'transactions') and isinstance(
-            getattr(message, 'transactions'), list
-        ):
-            for i, tx in enumerate(getattr(message, 'transactions')):
+        if hasattr(message, "transactions") and isinstance(getattr(message, "transactions"), list):
+            for i, tx in enumerate(getattr(message, "transactions")):
                 if isinstance(tx, dict):
-                    if 'debtor_account' in tx:
-                        tx_db_acct = tx['debtor_account']
+                    if "debtor_account" in tx:
+                        tx_db_acct = tx["debtor_account"]
                         if tx_db_acct and Validator._is_likely_iban(tx_db_acct):
                             err = Validator._validate_iban_checksum(tx_db_acct)
                             if err:
-                                errors.append(
-                                    f"[Transaction {i} Debtor Account] {err}"
-                                )
-                    if 'creditor_account' in tx:
-                        tx_cr_acct = tx['creditor_account']
+                                errors.append(f"[Transaction {i} Debtor Account] {err}")
+                    if "creditor_account" in tx:
+                        tx_cr_acct = tx["creditor_account"]
                         if tx_cr_acct and Validator._is_likely_iban(tx_cr_acct):
                             err = Validator._validate_iban_checksum(tx_cr_acct)
                             if err:
-                                errors.append(
-                                    f"[Transaction {i} Creditor Account] {err}"
-                                )
+                                errors.append(f"[Transaction {i} Creditor Account] {err}")
 
         is_valid = len(errors) == 0
         return ValidationReport(is_valid=is_valid, errors=errors)

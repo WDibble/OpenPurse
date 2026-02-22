@@ -32,8 +32,31 @@ dev = [
     "pytest>=7.0.0",
     "build",
     "twine",
-    "PyYAML"
+    "PyYAML",
+    "black",
+    "isort",
+    "mypy",
+    "flake8"
 ]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+ignore_missing_imports = true
+strict_optional = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+[tool.flake8]
+max-line-length = 100
+extend-ignore = "E203, E501"
 
 [project.urls]
 Homepage = "https://github.com/WDibble/OpenPurse"

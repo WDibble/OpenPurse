@@ -1,6 +1,7 @@
 import pytest
+
+from openpurse.models import Camt004Message, Camt054Message, Pacs008Message, PaymentMessage
 from openpurse.parser import OpenPurseParser
-from openpurse.models import PaymentMessage, Camt054Message, Pacs008Message, Camt004Message
 
 MOCK_PACS008 = b"""<?xml version="1.0" encoding="UTF-8"?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
@@ -104,10 +105,11 @@ MOCK_ADDRESS_XML = b"""<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 """
 
+
 def test_pacs008_flattening():
     parser = OpenPurseParser(MOCK_PACS008)
     result = parser.flatten()
-    
+
     assert result.get("message_id") == "MSG12345"
     assert result.get("end_to_end_id") == "E2E98765"
     assert result.get("amount") == "1500.00"
@@ -117,35 +119,39 @@ def test_pacs008_flattening():
     assert result.get("sender_bic") == "SENDERUS33"
     assert result.get("receiver_bic") == "RECVGB22"
 
+
 def test_camt052_flattening():
     parser = OpenPurseParser(MOCK_CAMT052)
     result = parser.flatten()
-    
+
     assert result.get("message_id") == "RPT98765"
     assert result.get("amount") == "500.50"
     assert result.get("currency") == "USD"
     assert result.get("debtor_name") == "Acme Corp"
     assert result.get("creditor_name") is None
 
+
 def test_missing_optional_fields():
     parser = OpenPurseParser(MOCK_MISSING_OPTIONAL)
     result = parser.flatten()
-    
+
     assert result.get("message_id") == "MSG999"
     assert result.get("amount") is None
     assert result.get("currency") is None
     assert result.get("debtor_name") is None
     assert result.get("creditor_name") is None
 
+
 def test_empty_input():
     parser = OpenPurseParser(b"")
     msg = parser.parse()
     assert msg.message_id is None
-    
+
+
 def test_address_parsing():
     parser = OpenPurseParser(MOCK_ADDRESS_XML)
     msg = parser.parse()
-    
+
     assert msg.debtor_name == "Debtor Name"
     assert msg.debtor_address is not None
     assert msg.debtor_address.street_name == "Wall Street"
@@ -155,14 +161,15 @@ def test_address_parsing():
     assert msg.debtor_address.country == "US"
     assert len(msg.debtor_address.address_lines) == 2
     assert msg.debtor_address.address_lines[0] == "Floor 42"
-    
+
     assert msg.creditor_name == "Creditor Name"
     assert msg.creditor_address is None
+
 
 def test_parse_returns_payment_message():
     parser = OpenPurseParser(MOCK_PACS008)
     msg = parser.parse()
-    
+
     assert isinstance(msg, PaymentMessage)
     assert msg.message_id == "MSG12345"
     assert msg.end_to_end_id == "E2E98765"
@@ -172,9 +179,10 @@ def test_parse_returns_payment_message():
     assert msg.creditor_name == "Jane Smith"
     assert msg.sender_bic == "SENDERUS33"
     assert msg.receiver_bic == "RECVGB22"
-    
+
     # Verify to_dict matches flatten perfectly
     assert msg.to_dict() == parser.flatten()
+
 
 MOCK_CAMT054 = b"""<?xml version="1.0" encoding="UTF-8"?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.02">
@@ -220,6 +228,7 @@ MOCK_PACS008_DETAILED = b"""<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 """
 
+
 def test_parse_detailed_camt054():
     parser = OpenPurseParser(MOCK_CAMT054)
     msg = parser.parse_detailed()
@@ -234,6 +243,7 @@ def test_parse_detailed_camt054():
     assert msg.entries[0]["currency"] == "SEK"
     assert msg.entries[0]["status"] == "BOOK"
     assert msg.entries[0]["booking_date"] == "2023-10-24"
+
 
 def test_parse_detailed_pacs008():
     parser = OpenPurseParser(MOCK_PACS008_DETAILED)
@@ -250,6 +260,7 @@ def test_parse_detailed_pacs008():
     assert msg.transactions[0]["debtor_name"] == "Global Corp"
     assert msg.transactions[0]["creditor_name"] == "Local Shop"
     assert msg.transactions[0]["remittance_info"] == "Invoice 12345"
+
 
 MOCK_CAMT004 = b"""<?xml version="1.0" encoding="UTF-8"?>
 <Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.004.001.10">
@@ -308,6 +319,7 @@ MOCK_CAMT004 = b"""<?xml version="1.0" encoding="UTF-8"?>
 </Document>
 """
 
+
 def test_parse_detailed_camt004():
     parser = OpenPurseParser(MOCK_CAMT004)
     msg = parser.parse_detailed()
@@ -321,7 +333,7 @@ def test_parse_detailed_camt004():
     assert msg.account_servicer == "BANKGB22"
     assert msg.account_status == "ENAB"
     assert msg.account_currency == "GBP"
-    
+
     assert len(msg.balances) == 1
     assert msg.balances[0]["amount"] == "50000.00"
     assert msg.balances[0]["currency"] == "GBP"
@@ -334,18 +346,19 @@ def test_parse_detailed_camt004():
     assert msg.limits[0]["currency"] == "GBP"
     assert msg.limits[0]["credit_debit_indicator"] == "CRDT"
 
+
 def test_parser_edge_cases():
     # Invalid XML
     parser = OpenPurseParser(b"This is not XML or MT")
     assert parser.tree is None
     assert parser.parse().message_id is None
-    
+
     # Missing namespace element access
     missing_ns_xml = b"""<Document><FIToFICstmrCdtTrf><GrpHdr><MsgId>BLAH</MsgId></GrpHdr></FIToFICstmrCdtTrf></Document>"""
     parser2 = OpenPurseParser(missing_ns_xml)
     msg = parser2.parse()
     assert msg.message_id == "BLAH"
-    
+
     # Empty element text
     empty_tag_xml = b"""<?xml version="1.0" encoding="UTF-8"?>
     <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">

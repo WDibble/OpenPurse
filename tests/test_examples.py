@@ -1,22 +1,32 @@
-import os
 import glob
+import os
+
 import pytest
-from openpurse.parser import OpenPurseParser
+
 from openpurse.models import (
-    Camt054Message, Pacs008Message, Camt004Message, Camt052Message,
-    Camt053Message, Pain001Message, Pain008Message, Pain002Message, PaymentMessage
+    Camt004Message,
+    Camt052Message,
+    Camt053Message,
+    Camt054Message,
+    Pacs008Message,
+    Pain001Message,
+    Pain002Message,
+    Pain008Message,
+    PaymentMessage,
 )
+from openpurse.parser import OpenPurseParser
 
 # Path to example messages folder
-EXAMPLES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'example_messages')
-EXAMPLE_FILES = glob.glob(os.path.join(EXAMPLES_DIR, '*.xml'))
+EXAMPLES_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "example_messages")
+EXAMPLE_FILES = glob.glob(os.path.join(EXAMPLES_DIR, "*.xml"))
+
 
 @pytest.mark.parametrize("filepath", EXAMPLE_FILES)
 def test_parse_real_examples(filepath):
     """
     Ensure the parser can read and flatten real example messages without crashing.
     """
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         xml_data = f.read()
 
     parser = OpenPurseParser(xml_data)
@@ -24,7 +34,7 @@ def test_parse_real_examples(filepath):
 
     # Verify that flattening returns a dictionary
     assert isinstance(result, dict)
-    
+
     # Check that standard keys are present (even if values are None)
     expected_keys = {
         "message_id",
@@ -34,17 +44,18 @@ def test_parse_real_examples(filepath):
         "sender_bic",
         "receiver_bic",
         "debtor_name",
-        "creditor_name"
+        "creditor_name",
     }
     assert expected_keys.issubset(set(result.keys()))
+
 
 @pytest.mark.parametrize("filepath", EXAMPLE_FILES)
 def test_parse_detailed_real_examples(filepath):
     """
-    Ensure the parser correctly dynamically identifies all 5 new and 3 existing examples 
+    Ensure the parser correctly dynamically identifies all 5 new and 3 existing examples
     and instantiates their extreme detailed dataclass models correctly.
     """
-    with open(filepath, 'rb') as f:
+    with open(filepath, "rb") as f:
         xml_data = f.read()
 
     parser = OpenPurseParser(xml_data)

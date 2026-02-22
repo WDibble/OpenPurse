@@ -1,7 +1,10 @@
-import pytest
 import json
-from openpurse.exporter import Exporter
+
+import pytest
+
 from openpurse import models
+from openpurse.exporter import Exporter
+
 
 def test_generate_schema_basic():
     schema = Exporter.generate_schema(models.PostalAddress)
@@ -9,6 +12,7 @@ def test_generate_schema_basic():
     assert "country" in schema["properties"]
     assert schema["properties"]["country"]["type"] == "string"
     assert schema["properties"]["country"]["nullable"] is True
+
 
 def test_generate_schema_inheritance():
     # Pacs008Message inherits from PaymentMessage
@@ -19,6 +23,7 @@ def test_generate_schema_inheritance():
     assert "message_id" in schema["properties"]
     assert "amount" in schema["properties"]
 
+
 def test_to_openapi_structure():
     spec = Exporter.to_openapi()
     assert spec["openapi"] == "3.0.0"
@@ -27,6 +32,7 @@ def test_to_openapi_structure():
     assert "PaymentMessage" in spec["components"]["schemas"]
     assert "PostalAddress" in spec["components"]["schemas"]
     assert "ValidationReport" in spec["components"]["schemas"]
+
 
 def test_export_json(tmp_path):
     path = tmp_path / "openapi.json"

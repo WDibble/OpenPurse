@@ -31,7 +31,7 @@ Financial messaging is messy. Deeply nested XML (ISO 20022) and archaic block-ba
 
 | Feature             | Description                                                                  |
 | :------------------ | :--------------------------------------------------------------------------- |
-| **Unified Parser**  | One API for both ISO 20022 XML and SWIFT MT103/MT202/MT940.                  |
+| **Unified Parser**  | One API for both ISO 20022 XML and SWIFT MT101/103/202/940/942/950.          |
 | **Auto-Reconciler** | Link initiations, status reports, and notifications into a single lifecycle. |
 | **PII Anonymizer**  | Scrub sensitive data while keeping messages valid (checksum-aware).          |
 | **Smart Validator** | Offline IBAN Modulo-97 and BIC validation.                                   |
@@ -103,6 +103,20 @@ timeline = Reconciler.trace_lifecycle(my_seed_msg, all_parsed_messages)
 
 for step in timeline:
     print(f"[{step.__class__.__name__}] {step.message_id}")
+```
+
+---
+
+## 🚦 Smart Validation Engine
+
+Ensure your BICs and IBANs are strictly compliant before sending them down the wire.
+
+```python
+from openpurse.validator import Validator
+
+report = Validator.validate(msg)
+if not report.is_valid:
+    print(f"Validation Failed: {report.errors}")
 ```
 
 ---
