@@ -254,6 +254,43 @@ class Camt029Message(PaymentMessage):
 
 
 @dataclass
+class Fxtr014Message(PaymentMessage):
+    """
+    Detailed schema for FXTR.014 Foreign Exchange Trade Instruction.
+    Contains specifics about currency exchange rates, trade dates, and settling amounts.
+    """
+
+    creation_date_time: Optional[str] = None
+    trade_date: Optional[str] = None
+    settlement_date: Optional[str] = None
+    exchange_rate: Optional[str] = None
+    trading_party: Optional[str] = None
+    counterparty: Optional[str] = None
+    traded_currency: Optional[str] = None
+    traded_amount: Optional[str] = None
+
+
+@dataclass
+class Sese023Message(PaymentMessage):
+    """
+    Detailed schema for SESE.023 Securities Settlement Transaction Instruction.
+    Contains specifics about the traded security, its quantity, and the settlement parties.
+    """
+
+    creation_date_time: Optional[str] = None
+    trade_date: Optional[str] = None
+    settlement_date: Optional[str] = None
+    security_id: Optional[str] = None
+    security_id_type: Optional[str] = None
+    security_quantity: Optional[str] = None
+    security_quantity_type: Optional[str] = None
+    settlement_amount: Optional[str] = None
+    settlement_currency: Optional[str] = None
+    delivering_agent: Optional[str] = None
+    receiving_agent: Optional[str] = None
+
+
+@dataclass
 class ValidationReport:
     """
     Standardized report returning the analytical state of a validated PaymentMessage.

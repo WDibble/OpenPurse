@@ -17,6 +17,8 @@ from openpurse.models import (
     Pain008Message,
     PaymentMessage,
     PostalAddress,
+    Fxtr014Message,
+    Sese023Message,
 )
 
 if TYPE_CHECKING:
@@ -553,6 +555,8 @@ class OpenPurseParser:
                 "BkToCstmrDbtCdtNtfctn": "camt.054",
                 "FIToFICstmrCdtTrf": "pacs.008",
                 "RtrAcct": "camt.004",
+                "FXTradInstr": "fxtr.014",
+                "SctiesSttlmTxInstr": "sese.023",
             }
             ns_str = tag_mapping.get(root_tag, "")
 
@@ -577,6 +581,12 @@ class OpenPurseParser:
 
         if "camt.029" in ns_str:
             return self._parse_camt029()
+
+        if "fxtr.014" in ns_str:
+            return self._parse_fxtr014(base_msg)
+
+        if "sese.023" in ns_str:
+            return self._parse_sese023(base_msg)
 
         return base_msg
 
@@ -1034,6 +1044,62 @@ class OpenPurseParser:
             case_id=self._get_text(".//ns:Case/ns:Id/text()"),
             investigation_status=investigation_status,
             cancellation_details=cancellation_details,
+        )
+
+    def _parse_fxtr014(self, base_msg: PaymentMessage) -> Fxtr014Message:
+        return Fxtr014Message(
+            **base_msg.to_dict(),
+            creation_date_time=self._get_text("//ns:GrpHdr/ns:CreDtTm/text()"),
+            trade_date=self._get_text("//ns:TradInf/ns:TradDt/text()"),
+            settlement_date=self._get_text("//ns:TradAmts/ns:SttlmDt/text()"),
+            trading_party=self._get_text(
+                "//ns:TradgSdId/ns:SubmitgPty/ns:AnyBIC/ns:AnyBIC/text() | "
+                "//ns:TradgSdId/ns:SubmitgPty/ns:NmAndAdr/ns:Nm/text()"
+            ),
+            counterparty=self._get_text(
+                "//ns:CtrPtySdId/ns:SubmitgPty/ns:AnyBIC/ns:AnyBIC/text() | "
+                "//ns:CtrPtySdId/ns:SubmitgPty/ns:NmAndAdr/ns:Nm/text()"
+            ),
+            exchange_rate=self._get_text("//ns:AgrdRate/ns:XchgRate/text()"),
+            traded_amount=self._get_text("//ns:TradAmts/ns:TradgSdBuyAmt/ns:Amt/text()"),
+            traded_currency=self._get_text("//ns:TradAmts/ns:TradgSdBuyAmt/ns:Amt/@Ccy"),
+        )
+
+    def _parse_sese023(self, base_msg: PaymentMessage) -> Sese023Message:
+        qty_type = None
+        if self._get_text("//ns:QtyAndAcctDtls/ns:SttlmQty/ns:Qty/ns:Unit/text()"):
+            qty_type = "Unit"
+        elif self._get_text("//ns:QtyAndAcctDtls/ns:SttlmQty/ns:Qty/ns:AmtsdVal/text()"):
+            qty_type = "AmortisedValue"
+
+        return Sese023Message(
+            **base_msg.to_dict(),
+            creation_date_time=self._get_text("//ns:GrpHdr/ns:CreDtTm/text()"),
+            trade_date=self._get_text(
+                "//ns:TradDtls/ns:TradDt/ns:Dt/ns:Dt/text() | "
+                "//ns:TradDtls/ns:TradDt/ns:DtTm/text()"
+            ),
+            settlement_date=self._get_text(
+                "//ns:TradDtls/ns:SttlmDt/ns:Dt/ns:Dt/text() | "
+                "//ns:TradDtls/ns:SttlmDt/ns:DtTm/text()"
+            ),
+            security_id=self._get_text("//ns:FinInstrmId/ns:ISIN/text()"),
+            security_id_type="ISIN" if self._get_text("//ns:FinInstrmId/ns:ISIN/text()") else None,
+            security_quantity=self._get_text(
+                "//ns:QtyAndAcctDtls/ns:SttlmQty/ns:Qty/ns:Unit/text() | "
+                "//ns:QtyAndAcctDtls/ns:SttlmQty/ns:Qty/ns:AmtsdVal/text()"
+            ),
+            security_quantity_type=qty_type,
+            settlement_amount=self._get_text("//ns:SttlmAmt/ns:Amt/ns:Amt/text()"),
+            settlement_currency=self._get_text("//ns:SttlmAmt/ns:Amt/ns:Amt/@Ccy"),
+            delivering_agent=self._get_text(
+                "//ns:DlvrgSttlmPties/ns:Pty1/ns:Id/ns:AnyBIC/text() | "
+                "//ns:DlvrgSttlmPties/ns:Pty1/ns:Id/ns:NmAndAdr/ns:Nm/text()"
+            ),
+            receiving_agent=self._get_text(
+                "//ns:RcvgSttlmPties/ns:Pty1/ns:Id/ns:AnyBIC/text() | "
+                "//ns:RcvgSttlmPties/ns:Pty1/ns:Id/ns:NmAndAdr/ns:Nm/text()"
+            ),
         )
 
     def flatten(self) -> Dict[str, Any]:
