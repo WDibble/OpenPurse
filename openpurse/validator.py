@@ -35,7 +35,7 @@ class Validator:
         if not iban:
             return None
             
-        clean_iban = iban.replace(" ", "").upper()
+        clean_iban = re.sub(r'[^A-Z0-9]', '', iban.upper())
         
         # IBANs are strictly between 15 and 34 characters and begin with a 2-letter country code
         if not re.match(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$", clean_iban):
