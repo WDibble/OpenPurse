@@ -6,6 +6,10 @@ class Validator:
     """
     Intelligent pre-validation engine executing structural checks matching SWIFT & ISO compliance patterns.
     """
+    
+    _bic_pattern = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
+    _iban_clean_pattern = re.compile(r'[^A-Z0-9]')
+    _iban_format_pattern = re.compile(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$")
 
     @staticmethod
     def _validate_bic(bic: str) -> Optional[str]:
@@ -15,14 +19,9 @@ class Validator:
         if not bic:
             return None
             
-        # Optional padding removal generated from parser extracts
         clean_bic = bic.strip()
         
-        # Match standard BIC: 4 chars (bank code), 2 chars (country), 2 chars (location), optional 3 chars (branch)
-        # Often SWIFT allows numbers in the country code or location code in testing, so we relax slightly
-        pattern = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
-        
-        if not pattern.match(clean_bic):
+        if not Validator._bic_pattern.match(clean_bic):
             return f"Invalid BIC format: '{clean_bic}'. Must securely match ISO 9362 standard 8 or 11 characters."
             
         return None
@@ -35,22 +34,17 @@ class Validator:
         if not iban:
             return None
             
-        clean_iban = re.sub(r'[^A-Z0-9]', '', iban.upper())
+        clean_iban = Validator._iban_clean_pattern.sub('', iban.upper())
         
         # IBANs are strictly between 15 and 34 characters and begin with a 2-letter country code
-        if not re.match(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$", clean_iban):
+        if not Validator._iban_format_pattern.match(clean_iban):
             return None # Not an IBAN, safely ignore (could be a local BBAN/account number)
             
         # 1. Rearrange: move the first four characters to the end
         rearranged = clean_iban[4:] + clean_iban[:4]
         
         # 2. Convert: replace letters with digits (A=10, B=11... Z=35)
-        numeric_iban = ""
-        for char in rearranged:
-            if char.isalpha():
-                numeric_iban += str(ord(char) - 55) # 'A' is 65. 65 - 55 = 10.
-            else:
-                numeric_iban += char
+        numeric_iban = "".join(str(ord(char) - 55) if char.isalpha() else char for char in rearranged)
                 
         # 3. Modulo 97 check: the integer modulo 97 must equal 1
         try:
