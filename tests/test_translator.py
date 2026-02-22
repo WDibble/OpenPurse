@@ -164,3 +164,86 @@ def test_translator_edge_cases():
     mt_large = Translator.to_mt(msg, "103")
     assert b"999999999999999,99" in mt_large
 
+def test_translate_101():
+    from openpurse.models import Pain001Message
+    msg = Pain001Message(
+        message_id="REQ101",
+        sender_bic="SENDERGB22",
+        receiver_bic="RECVUS33",
+        initiating_party="Alice Corp",
+        payment_information=[
+            {
+                "end_to_end_id": "TXN1",
+                "amount": "100.50",
+                "currency": "EUR",
+                "creditor_name": "Bob LLC"
+            },
+            {
+                "end_to_end_id": "TXN2",
+                "amount": "200.75",
+                "currency": "EUR",
+                "creditor_name": "Charlie Inc"
+            }
+        ]
+    )
+    mt_bytes = Translator.to_mt(msg, "101")
+    assert b"{2:I101RECVUS33XXXXN" in mt_bytes
+    assert b":20:REQ101" in mt_bytes
+    assert b":50H:/SENDERGB22XX\nAlice Corp" in mt_bytes
+    assert b":21:TXN1" in mt_bytes
+    assert b":32B:EUR100,50" in mt_bytes
+    assert b"Bob LLC" in mt_bytes
+    assert b":21:TXN2" in mt_bytes
+    assert b":32B:EUR200,75" in mt_bytes
+    assert b"Charlie Inc" in mt_bytes
+
+def test_translate_942_950():
+    from openpurse.models import Camt052Message, Camt053Message
+    
+    msg_942 = Camt052Message(
+        message_id="RPT942",
+        account_id="ACCT1",
+        amount="5000.00",
+        currency="USD",
+        sender_bic="BANKA",
+        entries=[
+            {
+                "reference": "TXN1",
+                "amount": "100.50",
+                "credit_debit_indicator": "CRDT",
+                "remittance": "Payment A"
+            }
+        ]
+    )
+    
+    mt_942_bytes = Translator.to_mt(msg_942, "942")
+    assert b"{2:I942" in mt_942_bytes
+    assert b":20:RPT942" in mt_942_bytes
+    assert b":34F:CUSD5000,00" in mt_942_bytes
+    assert b"C100,50NTRFTXN1" in mt_942_bytes
+    assert b":86:Payment A" in mt_942_bytes
+    
+    msg_950 = Camt053Message(
+        message_id="STMT950",
+        account_id="ACCT2",
+        amount="10000.00",
+        currency="EUR",
+        sender_bic="BANKB",
+        entries=[
+            {
+                "reference": "TXN2",
+                "amount": "50.00",
+                "credit_debit_indicator": "DBIT",
+                "remittance": "Ignored in 950"
+            }
+        ]
+    )
+    
+    mt_950_bytes = Translator.to_mt(msg_950, "950")
+    assert b"{2:I950" in mt_950_bytes
+    assert b":20:STMT950" in mt_950_bytes
+    assert b":60F:C" in mt_950_bytes
+    assert b"D50,00NTRFTXN2" in mt_950_bytes
+    assert b":62F:C" in mt_950_bytes
+    assert b":86:" not in mt_950_bytes  # MT950 omits remittance information block
+

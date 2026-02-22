@@ -181,12 +181,16 @@ class OpenPurseParser:
         # Block 2: {2:I103[Receiver BIC 12 chars]...} or O format
         # receiver BIC is 12 chars, followed by message priority 'N', 'U', 'S'.
         receiver = None
-        b2_match = re.search(r'\{2:[IO][0-9]{3}([A-Z0-9]{12})', text)
+        mt_type = None
+        b2_match = re.search(r'\{2:[IO]([0-9]{3})([A-Z0-9]{12})', text)
         if b2_match:
-            receiver = b2_match.group(1)
+            mt_type = b2_match.group(1)
+            receiver = b2_match.group(2)
         else: 
-            b2_match2 = re.search(r'\{2:[IO][0-9]{3}([A-Z0-9]{8,14})', text)
-            if b2_match2: receiver = b2_match2.group(1)[:12]
+            b2_match2 = re.search(r'\{2:[IO]([0-9]{3})([A-Z0-9]{8,14})', text)
+            if b2_match2:
+                mt_type = b2_match2.group(1)
+                receiver = b2_match2.group(2)[:12]
             
         # Block 3: {3:{121:[UUIDv4 UETR]}}
         uetr = None
@@ -196,6 +200,102 @@ class OpenPurseParser:
             
         # 2. Body parsing
         msg_id = extract_tag(':20:')
+        
+        if mt_type == "101":
+            from openpurse.models import Pain001Message
+            initiating_party = extract_tag(':50H:') or extract_tag(':50C:') or extract_tag(':50L:')
+            if initiating_party and '\\n' in initiating_party:
+                initiating_party = initiating_party.replace('\\n', ' ')
+            
+            transactions = []
+            amount = None
+            currency = None
+            
+            tag_32b = extract_tag(':32B:')
+            if tag_32b and len(tag_32b) >= 3:
+                currency = tag_32b[:3]
+                amount = tag_32b[3:].replace(',', '.')
+                
+            end_to_end_id = extract_tag(':21:')
+            creditor_name = extract_tag(':59:') or extract_tag(':59A:')
+            if creditor_name and '\\n' in creditor_name:
+                creditor_name = creditor_name.replace('\\n', ' ')
+            
+            tx_info = {
+                'end_to_end_id': end_to_end_id,
+                'amount': amount,
+                'currency': currency,
+                'creditor_name': creditor_name
+            }
+            if end_to_end_id or amount or creditor_name:
+                transactions.append(tx_info)
+            
+            return Pain001Message(
+                message_id=msg_id,
+                end_to_end_id=None,
+                uetr=uetr,
+                amount=amount,
+                currency=currency,
+                sender_bic=sender,
+                receiver_bic=receiver,
+                initiating_party=initiating_party,
+                payment_information=transactions,
+                number_of_transactions=len(transactions)
+            )
+            
+        if mt_type in ("940", "942", "950"):
+            from openpurse.models import Camt052Message, Camt053Message
+            account_id = extract_tag(':25:')
+            
+            entries = []
+            block4_match = re.search(r'\{4:(.*?)-}', text, re.DOTALL)
+            if block4_match:
+                b4_text = block4_match.group(1)
+                
+                # Extract all tag-value pairs
+                tag_matches = re.finditer(r'\n:([0-9]{2}[A-Z]?):(.*?)(?=\n:[0-9]{2}[A-Z]?:|\n-\Z|\n-\})', "\n" + b4_text.strip() + "\n-}", re.DOTALL)
+                
+                current_entry = None
+                for m in tag_matches:
+                    tag = m.group(1)
+                    val = m.group(2).strip()
+                    
+                    if tag == "61":
+                        if current_entry:
+                            entries.append(current_entry)
+                        
+                        cd_match = re.search(r'([A-Z]{1,2})([0-9]+,[0-9]*)', val)
+                        cd_ind = "CRDT"
+                        amount_str = "0.00"
+                        ref = "NONREF"
+                        if cd_match:
+                            cd_str = cd_match.group(1)
+                            amt_str = cd_match.group(2)
+                            if 'D' in cd_str:
+                                cd_ind = "DBIT"
+                            amount_str = amt_str.replace(',', '.')
+                            
+                            rest = val[cd_match.end():]
+                            if len(rest) >= 4 and rest[:4].isalpha():
+                                ref = rest[4:]
+                            else:
+                                ref = rest
+                                
+                        current_entry = {
+                            "amount": amount_str,
+                            "credit_debit_indicator": cd_ind,
+                            "reference": ref
+                        }
+                    elif tag == "86" and current_entry:
+                        current_entry["remittance"] = val.replace('\n', ' ')
+                        
+                if current_entry:
+                    entries.append(current_entry)
+                    
+            if mt_type in ("942",):
+                return Camt052Message(message_id=msg_id, account_id=account_id, entries=entries, sender_bic=sender, receiver_bic=receiver)
+            else:
+                return Camt053Message(message_id=msg_id, account_id=account_id, entries=entries, sender_bic=sender, receiver_bic=receiver)
         
         amount = None
         currency = None

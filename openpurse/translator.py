@@ -14,7 +14,7 @@ class Translator:
         Translates a PaymentMessage into a SWIFT MT byte string.
         Currently supports MT103 block generation.
         """
-        if mt_type not in ("103", "202", "900", "910", "940"):
+        if mt_type not in ("101", "103", "202", "900", "910", "940", "942", "950"):
             raise NotImplementedError(
                 f"Translation to MT{mt_type} is not yet supported."
             )
@@ -36,7 +36,9 @@ class Translator:
         # Block 4: Body
         msg_id, curr, amt_str, date_str = Translator._get_mt_common_fields(message)
         
-        if mt_type == "103":
+        if mt_type == "101":
+            block_4 = Translator._build_mt101_block4(message, msg_id, curr, amt_str, date_str, sender, receiver)
+        elif mt_type == "103":
             block_4 = Translator._build_mt103_block4(message, msg_id, curr, amt_str, date_str, sender, receiver)
         elif mt_type == "202":
             block_4 = Translator._build_mt202_block4(msg_id, curr, amt_str, date_str, receiver)
@@ -46,6 +48,10 @@ class Translator:
             block_4 = Translator._build_mt910_block4(message, msg_id, curr, amt_str, date_str, sender)
         elif mt_type == "940":
             block_4 = Translator._build_mt940_block4(message, msg_id, curr, amt_str, date_str, sender)
+        elif mt_type == "942":
+            block_4 = Translator._build_mt942_block4(message, msg_id, curr, amt_str, date_str, sender)
+        elif mt_type == "950":
+            block_4 = Translator._build_mt950_block4(message, msg_id, curr, amt_str, date_str, sender)
         
         return f"{block_1}{block_2}{block_3}{block_4}".encode('utf-8')
 
@@ -63,6 +69,51 @@ class Translator:
             
         date_str = datetime.now().strftime("%y%m%d")
         return msg_id, curr, amt_str, date_str
+
+    @staticmethod
+    def _build_mt101_block4(message, msg_id, curr, amt_str, date_str, sender, receiver):
+        initiating_party = getattr(message, 'initiating_party', "N/A")
+        if not initiating_party:
+            initiating_party = "N/A"
+            
+        block4 = (
+            f"{{4:\n"
+            f":20:{msg_id}\n"
+            f":50H:/{sender}\n"
+            f"{initiating_party}\n"
+            f":30:{date_str}\n"
+        )
+        
+        transactions = getattr(message, 'payment_information', [])
+        if not transactions:
+            end_to_end = message.end_to_end_id or "NONREF"
+            creditor = message.creditor_name or "N/A"
+            block4 += (
+                f":21:{end_to_end}\n"
+                f":32B:{curr}{amt_str}\n"
+                f":59:/{receiver}\n"
+                f"{creditor}\n"
+            )
+        else:
+            for tx in transactions:
+                end_to_end = tx.get('end_to_end_id') or "NONREF"
+                tx_amt = tx.get('amount') or "0.00"
+                if '.' in tx_amt:
+                    tx_amt = tx_amt.replace('.', ',')
+                else:
+                    tx_amt += ','
+                tx_curr = tx.get('currency') or curr
+                creditor = tx.get('creditor_name') or "N/A"
+                
+                block4 += (
+                    f":21:{end_to_end}\n"
+                    f":32B:{tx_curr}{tx_amt}\n"
+                    f":59:/{receiver}\n"
+                    f"{creditor}\n"
+                )
+                
+        block4 += "-}"
+        return block4
 
     @staticmethod
     def _build_mt103_block4(
@@ -142,6 +193,60 @@ class Translator:
             f":20:{msg_id}\n"
             f":25:/{sender}\n"
             f":28C:1/1\n"
+            f"{open_bal}\n"
+            f"{statements_loop}"
+            f"{close_bal}\n"
+            f"-}}"
+        )
+
+    @staticmethod
+    def _build_mt942_block4(message, msg_id, curr, amt_str, date_str, sender):
+        statements_loop = ""
+        interim_bal = f":34F:C{curr}{amt_str}"
+        
+        if hasattr(message, 'entries') and isinstance(message.entries, list):
+            for entry in message.entries:
+                e_amt = str(entry.get('amount', '0.00')).replace('.', ',')
+                e_cd = "C" if entry.get('credit_debit_indicator') == "CRDT" else "D"
+                e_ref = entry.get('reference', 'NONREF')
+                
+                statements_loop += (
+                    f":61:{date_str}{date_str[2:]}{e_cd}{e_amt}NTRF{e_ref}\n"
+                )
+                
+                e_remit = entry.get('remittance')
+                if e_remit:
+                    statements_loop += f":86:{e_remit}\n"
+        
+        return (
+            f"{{4:\n"
+            f":20:{msg_id}\n"
+            f":25:/{sender}\n"
+            f"{interim_bal}\n"
+            f"{statements_loop}"
+            f"-}}"
+        )
+
+    @staticmethod
+    def _build_mt950_block4(message, msg_id, curr, amt_str, date_str, sender):
+        statements_loop = ""
+        open_bal = f":60F:C{date_str}{curr}{amt_str}"
+        close_bal = f":62F:C{date_str}{curr}{amt_str}"
+        
+        if hasattr(message, 'entries') and isinstance(message.entries, list):
+            for entry in message.entries:
+                e_amt = str(entry.get('amount', '0.00')).replace('.', ',')
+                e_cd = "C" if entry.get('credit_debit_indicator') == "CRDT" else "D"
+                e_ref = entry.get('reference', 'NONREF')
+                
+                statements_loop += (
+                    f":61:{date_str}{date_str[2:]}{e_cd}{e_amt}NTRF{e_ref}\n"
+                )
+                
+        return (
+            f"{{4:\n"
+            f":20:{msg_id}\n"
+            f":25:/{sender}\n"
             f"{open_bal}\n"
             f"{statements_loop}"
             f"{close_bal}\n"
