@@ -27,3 +27,6 @@ IDEs
 .idea/
 
 Note: We are NOT ignoring .agent/rules.md so your AI rules are committed to Git!
+# Pytest and Cache files
+__pycache__/
+.pytest_cache/
