@@ -1,5 +1,6 @@
 import lxml.etree
 import pytest
+import os
 
 from openpurse.builder import MessageBuilder
 from openpurse.models import Pain002Message, PaymentMessage
@@ -121,3 +122,67 @@ def test_reconciler_fuzzy_amount():
     assert Reconciler.is_match(msg1, msg2, fuzzy_amount=False) is False
     # Fuzzy match (1%) passes
     assert Reconciler.is_match(msg1, msg2, fuzzy_amount=True) is True
+
+
+# --- 6. Garbage & Malicious Input ---
+
+
+def test_parser_pure_garbage_input():
+    """Test that the parser doesn't crash with non-text binary garbage."""
+    garbage = os.urandom(1024)
+    parser = OpenPurseParser(garbage)
+    msg = parser.parse()
+    assert isinstance(msg, PaymentMessage)
+    # Binary garbage shouldn't match startswith(b"{1:") or yield valid XML
+    assert msg.message_id is None
+
+
+def test_parser_deep_nesting_failures():
+    """Test that partial or deeply nested missing elements don't cause crashes."""
+    # pacs.008 with nested parts missing halfway
+    xml = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
+        <FIToFICstmrCdtTrf>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <!-- EndToEndId missing here -->
+                </PmtId>
+                <InstdAgt>
+                    <!-- FinInstnId missing here -->
+                    <BranchId><Id>BRANCH123</Id></BranchId>
+                </InstdAgt>
+            </CdtTrfTxInf>
+        </FIToFICstmrCdtTrf>
+    </Document>"""
+    parser = OpenPurseParser(xml)
+    msg = parser.parse()
+    assert msg.end_to_end_id is None  # Gracefully None
+    assert msg.receiver_bic is None
+
+
+def test_parser_unsupported_encoding():
+    """Test handling of XML with non-UTF8 encoding declaration."""
+    # ISO-8859-1 (Latin-1)
+    xml = (
+        '<?xml version="1.0" encoding="ISO-8859-1"?>'
+        '<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">'
+        "<FIToFICstmrCdtTrf><GrpHdr><MsgId>LATIN_ID_\xe9</MsgId></GrpHdr></FIToFICstmrCdtTrf>"
+        "</Document>"
+    ).encode("iso-8859-1")
+
+    parser = OpenPurseParser(xml)
+    msg = parser.parse()
+    # lxml handle encoding from the declaration usually
+    assert "LATIN_ID" in msg.message_id
+    assert msg.message_id.endswith("é")
+
+
+def test_parser_huge_values():
+    """Test parser with extremely long strings to check for buffer/slowdown issues."""
+    huge_id = "A" * 100000  # 100KB string
+    xml = f"""<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
+        <FIToFICstmrCdtTrf><GrpHdr><MsgId>{huge_id}</MsgId></GrpHdr></FIToFICstmrCdtTrf>
+    </Document>""".encode()
+    parser = OpenPurseParser(xml)
+    msg = parser.parse()
+    assert msg.message_id == huge_id
