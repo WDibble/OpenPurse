@@ -95,3 +95,43 @@ def test_parse_pacs_009_financial_institution_credit_transfer():
     assert tx["currency"] == "USD"
     assert tx["debtor"] == "BOFUS33"
     assert tx["creditor"] == "CHASUS33"
+
+def test_pacs_edge_cases():
+    """Test extracting detailed fields from heavily malformed PACS.009 and PACS.004 messages."""
+    missing_pacs_004 = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.004.001.09">
+        <PmtRtr>
+            <GrpHdr></GrpHdr>
+        </PmtRtr>
+    </Document>
+    """
+    parser = OpenPurseParser(missing_pacs_004)
+    parsed = parser.parse_detailed()
+    assert isinstance(parsed, Pacs004Message)
+    assert parsed.creation_date_time is None
+    assert parsed.original_message_id is None
+    assert parsed.original_message_name_id is None
+    assert parsed.uetr is None
+    # No transactions should be parsed
+    assert len(parsed.transactions) == 0
+
+    missing_pacs_009 = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.08">
+        <FICdtTrf>
+            <CdtTrfTxInf>
+                <IntrBkSttlmAmt Ccy="EUR">INVALID_AMOUNT</IntrBkSttlmAmt>
+            </CdtTrfTxInf>
+        </FICdtTrf>
+    </Document>
+    """
+    parser2 = OpenPurseParser(missing_pacs_009)
+    parsed2 = parser2.parse_detailed()
+    assert isinstance(parsed2, Pacs009Message)
+    assert parsed2.creation_date_time is None
+    assert len(parsed2.transactions) == 1
+    
+    tx2 = parsed2.transactions[0]
+    assert tx2["instruction_id"] is None
+    assert tx2["amount"] == "INVALID_AMOUNT"
+    assert tx2["currency"] == "EUR"
+    assert tx2["debtor"] is None

@@ -147,7 +147,39 @@ def test_empty_input():
     msg = parser.parse()
     assert msg.message_id is None
 
-
+def test_pain_edge_cases():
+    mock_pain_001_missing = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
+        <CstmrCdtTrfInitn>
+            <GrpHdr>
+            </GrpHdr>
+            <PmtInf>
+            </PmtInf>
+        </CstmrCdtTrfInitn>
+    </Document>
+    """
+    parser = OpenPurseParser(mock_pain_001_missing)
+    msg = parser.parse_detailed()
+    
+    # We should gracefully fallback or hit generic PaymentMessage attributes since detailed parsing requires nodes
+    # But for PAIN.001 it parses specifically looking manually into lists.
+    assert msg.message_id is None
+    assert getattr(msg, 'number_of_transactions', None) is None
+    assert getattr(msg, 'control_sum', None) is None
+    
+    mock_pain_002_missing = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.10">
+        <CstmrPmtStsRpt>
+        </CstmrPmtStsRpt>
+    </Document>
+    """
+    parser2 = OpenPurseParser(mock_pain_002_missing)
+    msg2 = parser2.parse_detailed()
+    assert msg2.message_id is None
+    
+    # Check that generic parses also return gracefully
+    parsed_flat = parser2.flatten()
+    assert parsed_flat.get("message_id") is None
 def test_address_parsing():
     parser = OpenPurseParser(MOCK_ADDRESS_XML)
     msg = parser.parse()

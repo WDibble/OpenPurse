@@ -70,3 +70,26 @@ def test_parse_sese_023_securities_settlement():
     assert parsed.settlement_currency == "USD"
     assert parsed.delivering_agent == "CHASUS33"
     assert parsed.receiving_agent == "Vanguard Group"
+
+def test_sese_edge_cases():
+    missing_doc = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:sese.023.001.09">
+        <SctiesSttlmTxInstr>
+        </SctiesSttlmTxInstr>
+    </Document>
+    """
+    parser = OpenPurseParser(missing_doc)
+    parsed = parser.parse_detailed()
+    assert isinstance(parsed, Sese023Message)
+    assert parsed.trade_date is None
+    assert parsed.settlement_date is None
+    assert parsed.security_id is None
+    assert parsed.security_quantity is None
+    assert parsed.settlement_amount is None
+    assert parsed.delivering_agent is None
+    assert parsed.receiving_agent is None
+
+if __name__ == "__main__":
+    test_parse_sese_023_securities_settlement()
+    test_sese_edge_cases()
+    print("SESE Tests passed! 🚀")

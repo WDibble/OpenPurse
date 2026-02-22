@@ -77,8 +77,21 @@ def test_parse_detailed_acmt_015():
     assert msg.organization_name == "Globex Inc"
     assert msg.branch_name == "Uptown Branch"
 
+def test_acmt_edge_cases():
+    missing_doc = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:acmt.007.001.05">
+        <AcctOpngReq></AcctOpngReq>
+    </Document>"""
+    parser = OpenPurseParser(missing_doc)
+    msg = parser.parse_detailed()
+    assert isinstance(msg, Acmt007Message)
+    assert msg.process_id is None
+    assert msg.account_id is None
+    assert msg.account_currency is None
+    assert msg.organization_name is None
 
 if __name__ == "__main__":
     test_parse_detailed_acmt_007()
     test_parse_detailed_acmt_015()
+    test_acmt_edge_cases()
     print("ACMT Tests passed! 🚀")

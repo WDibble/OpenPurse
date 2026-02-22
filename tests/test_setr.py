@@ -121,7 +121,20 @@ def test_parse_detailed_setr_010():
     assert msg.orders[0]["currency"] == "EUR"
     assert msg.orders[0]["units"] is None
 
+def test_setr_edge_cases():
+    missing_doc = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:setr.004.001.04">
+        <RedOrdr></RedOrdr>
+    </Document>"""
+    parser = OpenPurseParser(missing_doc)
+    msg = parser.parse_detailed()
+    assert isinstance(msg, Setr004Message)
+    assert msg.master_reference is None
+    assert msg.pool_reference is None
+    assert len(msg.orders) == 0
+
 if __name__ == "__main__":
     test_parse_detailed_setr_004()
     test_parse_detailed_setr_010()
+    test_setr_edge_cases()
     print("All tests passed! 🚀")

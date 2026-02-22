@@ -149,6 +149,35 @@ def test_parse_mt101():
         if hasattr(msg, "initiating_party") and msg.initiating_party
         else True
     )
+
+def test_mt_advanced_edge_cases():
+    # Only block 1, missing everything else completely
+    b1_only = b"{1:F01SENDERUS33AXXX0000000000}"
+    parser = OpenPurseParser(b1_only)
+    msg = parser.parse()
+    assert msg.sender_bic == "SENDERUS33AXXX"
+    assert msg.receiver_bic is None
+    assert msg.amount is None
+    
+    # Missing Block 1, only Block 2
+    b2_only = b"{2:I103RECVGB22XXXXN}"
+    parser2 = OpenPurseParser(b2_only)
+    msg2 = parser2.parse()
+    assert msg2.sender_bic is None
+    assert msg2.receiver_bic == "RECVGB22XXXX"
+    
+    # Empty string
+    parser3 = OpenPurseParser(b"")
+    msg3 = parser3.parse()
+    assert msg3.sender_bic is None
+    
+    # Missing Amount tag completely inside block 4
+    no_amt = b"{1:F01SENDERUS33AXXX0000000000}{4:\n:20:MSG\n:50K:/123\nNAME\n:59:/456\nNAME2\n-}"
+    parser4 = OpenPurseParser(no_amt)
+    msg4 = parser4.parse()
+    assert msg4.amount is None
+    assert msg4.currency is None
+    assert "NAME" in msg4.debtor_name
     # If the parser properly maps it to Pain001Message:
     assert type(msg).__name__ in ["Pain001Message", "PaymentMessage"]
 

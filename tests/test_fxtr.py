@@ -53,3 +53,26 @@ def test_parse_fxtr_014_foreign_exchange_trade():
     assert parsed.exchange_rate == "1.1000"
     assert parsed.traded_amount == "1500000.00"
     assert parsed.traded_currency == "EUR"
+
+def test_fxtr_edge_cases():
+    missing_doc = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:fxtr.014.001.06">
+        <FXTradInstr>
+            <TradAmts></TradAmts>
+        </FXTradInstr>
+    </Document>
+    """
+    parser = OpenPurseParser(missing_doc)
+    parsed = parser.parse_detailed()
+    assert isinstance(parsed, Fxtr014Message)
+    assert parsed.trade_date is None
+    assert parsed.trading_party is None
+    assert parsed.counterparty is None
+    assert parsed.exchange_rate is None
+    assert parsed.traded_amount is None
+    assert parsed.traded_currency is None
+
+if __name__ == "__main__":
+    test_parse_fxtr_014_foreign_exchange_trade()
+    test_fxtr_edge_cases()
+    print("FXTR Tests passed! 🚀")
