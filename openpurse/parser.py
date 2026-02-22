@@ -281,6 +281,10 @@ class OpenPurseParser:
             b1_match2 = re.search(r"\{1:F01([A-Z0-9]{8,14})", text)
             if b1_match2:
                 sender = b1_match2.group(1)[:12]
+        
+        # Standardize to 8 or 11 characters by taking the first 11 (dropping LT code)
+        if sender and len(sender) > 11:
+            sender = sender[:11]
 
         # Block 2: {2:I103[Receiver BIC 12 chars]...} or O format
         # receiver BIC is 12 chars, followed by message priority 'N', 'U', 'S'.
@@ -295,6 +299,9 @@ class OpenPurseParser:
             if b2_match2:
                 mt_type = b2_match2.group(1)
                 receiver = b2_match2.group(2)[:12]
+        
+        if receiver and len(receiver) > 11:
+            receiver = receiver[:11]
 
         # Block 3: {3:{121:[UUIDv4 UETR]}}
         uetr = None
