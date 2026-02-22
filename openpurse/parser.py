@@ -16,9 +16,16 @@ from openpurse.models import (
     Pain002Message,
     Pain008Message,
     PaymentMessage,
-    PostalAddress,
     Fxtr014Message,
     Sese023Message,
+    Pacs004Message,
+    Pacs009Message,
+    Setr004Message,
+    Setr010Message,
+    Acmt007Message,
+    Acmt015Message,
+    Camt086Message,
+    PostalAddress,
 )
 
 if TYPE_CHECKING:
@@ -557,6 +564,13 @@ class OpenPurseParser:
                 "RtrAcct": "camt.004",
                 "FXTradInstr": "fxtr.014",
                 "SctiesSttlmTxInstr": "sese.023",
+                "PmtRtr": "pacs.004",
+                "FICdtTrf": "pacs.009",
+                "RedOrdr": "setr.004",
+                "SbcptOrdr": "setr.010",
+                "AcctOpngReq": "acmt.007",
+                "AcctExcldMndtMntncReq": "acmt.015",
+                "BkSrvcsBllgStmt": "camt.086",
             }
             ns_str = tag_mapping.get(root_tag, "")
 
@@ -587,6 +601,27 @@ class OpenPurseParser:
 
         if "sese.023" in ns_str:
             return self._parse_sese023(base_msg)
+
+        if "pacs.004" in ns_str:
+            return self._parse_pacs004(base_msg)
+
+        if "pacs.009" in ns_str:
+            return self._parse_pacs009(base_msg)
+
+        if "setr.004" in ns_str:
+            return self._parse_setr004(base_msg)
+
+        if "setr.010" in ns_str:
+            return self._parse_setr010(base_msg)
+
+        if "acmt.007" in ns_str:
+            return self._parse_acmt007(base_msg)
+
+        if "acmt.015" in ns_str:
+            return self._parse_acmt015(base_msg)
+
+        if "camt.086" in ns_str:
+            return self._parse_camt086(base_msg)
 
         return base_msg
 
@@ -1100,6 +1135,137 @@ class OpenPurseParser:
                 "//ns:RcvgSttlmPties/ns:Pty1/ns:Id/ns:AnyBIC/text() | "
                 "//ns:RcvgSttlmPties/ns:Pty1/ns:Id/ns:NmAndAdr/ns:Nm/text()"
             ),
+        )
+
+    def _parse_pacs004(self, base_msg: PaymentMessage) -> Pacs004Message:
+        transactions = []
+        for tx_el in self._get_nodes("//ns:TxInf"):
+            tx = {
+                "return_id": self._get_text_from(tx_el, "./ns:RtrId/text()"),
+                "original_end_to_end_id": self._get_text_from(tx_el, "./ns:OrgnlEndToEndId/text()"),
+                "original_transaction_id": self._get_text_from(tx_el, "./ns:OrgnlTxId/text()"),
+                "original_uetr": self._get_text_from(tx_el, "./ns:OrgnlUETR/text()"),
+                "returned_amount": self._get_text_from(tx_el, "./ns:RtrdIntrBkSttlmAmt/text()"),
+                "returned_currency": self._get_text_from(tx_el, "./ns:RtrdIntrBkSttlmAmt/@Ccy"),
+                "return_reason": self._get_text_from(
+                    tx_el, ".//ns:RtrRsnInf/ns:Rsn/ns:Cd/text() | .//ns:RtrRsnInf/ns:Rsn/ns:Prtry/text()"
+                ),
+            }
+            transactions.append(tx)
+
+        # Promote UETR from first transaction if base doesn't have it
+        promoted_uetr = base_msg.uetr or (transactions[0].get("original_uetr") if transactions else None)
+
+        return Pacs004Message(
+            **{**base_msg.to_dict(), "uetr": promoted_uetr},
+            creation_date_time=self._get_text("//ns:GrpHdr/ns:CreDtTm/text()"),
+            original_message_id=self._get_text("//ns:OrgnlGrpInf/ns:OrgnlMsgId/text()"),
+            original_message_name_id=self._get_text("//ns:OrgnlGrpInf/ns:OrgnlMsgNmId/text()"),
+            transactions=transactions,
+        )
+
+    def _parse_pacs009(self, base_msg: PaymentMessage) -> Pacs009Message:
+        transactions = []
+        for tx_el in self._get_nodes("//ns:CdtTrfTxInf"):
+            tx = {
+                "instruction_id": self._get_text_from(tx_el, "./ns:PmtId/ns:InstrId/text()"),
+                "end_to_end_id": self._get_text_from(tx_el, "./ns:PmtId/ns:EndToEndId/text()"),
+                "transaction_id": self._get_text_from(tx_el, "./ns:PmtId/ns:TxId/text()"),
+                "uetr": self._get_text_from(tx_el, "./ns:PmtId/ns:UETR/text()"),
+                "amount": self._get_text_from(tx_el, "./ns:IntrBkSttlmAmt/text()"),
+                "currency": self._get_text_from(tx_el, "./ns:IntrBkSttlmAmt/@Ccy"),
+                "debtor": self._get_text_from(
+                    tx_el,
+                    "./ns:Dbtr/ns:BICFI/text() | ./ns:Dbtr/ns:Othr/ns:Id/text()"
+                ),
+                "creditor": self._get_text_from(
+                    tx_el,
+                    "./ns:Cdtr/ns:BICFI/text() | ./ns:Cdtr/ns:Othr/ns:Id/text()"
+                ),
+            }
+            transactions.append(tx)
+
+        promoted_uetr = base_msg.uetr or (transactions[0].get("uetr") if transactions else None)
+        promoted_e2e = base_msg.end_to_end_id or (transactions[0].get("end_to_end_id") if transactions else None)
+
+        return Pacs009Message(
+            **{**base_msg.to_dict(), "uetr": promoted_uetr, "end_to_end_id": promoted_e2e},
+            creation_date_time=self._get_text("//ns:GrpHdr/ns:CreDtTm/text()"),
+            settlement_method=self._get_text("//ns:GrpHdr/ns:SttlmInf/ns:SttlmMtd/text()"),
+            transactions=transactions,
+        )
+
+    def _parse_setr004(self, base_msg: PaymentMessage) -> Setr004Message:
+        orders = []
+        for ordr_el in self._get_nodes("//ns:MltplOrdrDtls/ns:IndvOrdrDtls"):
+            order = {
+                "order_reference": self._get_text_from(ordr_el, "./ns:OrdrRef/text()"),
+                "investment_account_id": self._get_text_from(
+                    ordr_el, "./ns:InvstmtAcctDtls/ns:AcctId/text() | ./ns:InvstmtAcctDtls/ns:Id/text()"
+                ),
+                "financial_instrument_id": self._get_text_from(ordr_el, "./ns:FinInstrmDtls/ns:Id/ns:ISIN/text()"),
+                "amount": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:AmtdQty/text()"),
+                "currency": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:AmtdQty/@Ccy"),
+                "units": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:UnitQty/text()"),
+            }
+            orders.append(order)
+
+        return Setr004Message(
+            **base_msg.to_dict(),
+            master_reference=self._get_text("//ns:MltplOrdrDtls/ns:MstrRef/text()") or self._get_text("//ns:MsgId/ns:Id/text()"),
+            pool_reference=self._get_text("//ns:PoolRef/ns:Ref/text()"),
+            orders=orders,
+        )
+
+    def _parse_setr010(self, base_msg: PaymentMessage) -> Setr010Message:
+        orders = []
+        for ordr_el in self._get_nodes("//ns:MltplOrdrDtls/ns:IndvOrdrDtls"):
+            order = {
+                "order_reference": self._get_text_from(ordr_el, "./ns:OrdrRef/text()"),
+                "investment_account_id": self._get_text_from(
+                    ordr_el, "./ns:InvstmtAcctDtls/ns:AcctId/text() | ./ns:InvstmtAcctDtls/ns:Id/text()"
+                ),
+                "financial_instrument_id": self._get_text_from(ordr_el, "./ns:FinInstrmDtls/ns:Id/ns:ISIN/text()"),
+                "amount": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:AmtdQty/text()"),
+                "currency": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:AmtdQty/@Ccy"),
+                "units": self._get_text_from(ordr_el, "./ns:OrdrQty/ns:UnitQty/text()"),
+            }
+            orders.append(order)
+
+        return Setr010Message(
+            **base_msg.to_dict(),
+            master_reference=self._get_text("//ns:MltplOrdrDtls/ns:MstrRef/text()") or self._get_text("//ns:MsgId/ns:Id/text()"),
+            pool_reference=self._get_text("//ns:PoolRef/ns:Ref/text()"),
+            orders=orders,
+        )
+
+    def _parse_acmt007(self, base_msg: PaymentMessage) -> Acmt007Message:
+        return Acmt007Message(
+            **base_msg.to_dict(),
+            process_id=self._get_text("//ns:PrcId/ns:Id/text()"),
+            account_id=self._get_text("//ns:Acct/ns:Id/ns:Othr/ns:Id/text() | //ns:Acct/ns:Id/ns:IBAN/text()"),
+            account_currency=self._get_text("//ns:Acct/ns:Ccy/text()"),
+            organization_name=self._get_text("//ns:Org/ns:FullLglNm/text()"),
+            branch_name=self._get_text("//ns:AcctSvcrId/ns:BrnchId/ns:Nm/text()"),
+        )
+
+    def _parse_acmt015(self, base_msg: PaymentMessage) -> Acmt015Message:
+        return Acmt015Message(
+            **base_msg.to_dict(),
+            process_id=self._get_text("//ns:PrcId/ns:Id/text()"),
+            account_id=self._get_text("//ns:Acct/ns:Id/ns:Othr/ns:Id/text() | //ns:Acct/ns:Id/ns:IBAN/text()"),
+            organization_name=self._get_text("//ns:Org//ns:FullLglNm/text()"),
+            branch_name=self._get_text("//ns:AcctSvcrId/ns:BrnchId/ns:Nm/text()"),
+        )
+
+    def _parse_camt086(self, base_msg: PaymentMessage) -> Camt086Message:
+        return Camt086Message(
+            **base_msg.to_dict(),
+            report_id=self._get_text("//ns:RptHdr/ns:RptId/text()"),
+            group_id=self._get_text("//ns:BllgStmtGrp/ns:GrpId/text()"),
+            statement_id=self._get_text("//ns:BllgStmtGrp/ns:BllgStmt/ns:StmtId/text()"),
+            statement_status=self._get_text("//ns:BllgStmtGrp/ns:BllgStmt/ns:Sts/text()"),
+            creation_date_time=self._get_text("//ns:BllgStmtGrp/ns:BllgStmt/ns:CreDtTm/text()"),
         )
 
     def flatten(self) -> Dict[str, Any]:

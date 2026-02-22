@@ -1,5 +1,5 @@
 from dataclasses import asdict, dataclass
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -102,6 +102,21 @@ class Camt054Message(PaymentMessage):
     total_debit_entries: Optional[int] = None
     total_debit_amount: Optional[str] = None
     entries: Optional[list] = None
+
+
+@dataclass
+class Pacs004Message(PaymentMessage):
+    creation_date_time: Optional[str] = None
+    original_message_id: Optional[str] = None
+    original_message_name_id: Optional[str] = None
+    transactions: Optional[List[Dict[str, Any]]] = None
+
+
+@dataclass
+class Pacs009Message(PaymentMessage):
+    creation_date_time: Optional[str] = None
+    settlement_method: Optional[str] = None
+    transactions: Optional[List[Dict[str, Any]]] = None
 
 
 @dataclass
@@ -288,6 +303,68 @@ class Sese023Message(PaymentMessage):
     settlement_currency: Optional[str] = None
     delivering_agent: Optional[str] = None
     receiving_agent: Optional[str] = None
+
+
+@dataclass
+class Setr004Message(PaymentMessage):
+    """
+    Detailed schema for SETR.004 Redemption Order.
+    Used for investment fund redemption orders.
+    """
+
+    master_reference: Optional[str] = None
+    pool_reference: Optional[str] = None
+    orders: Optional[List[Dict[str, Any]]] = None
+
+
+@dataclass
+class Setr010Message(PaymentMessage):
+    """
+    Detailed schema for SETR.010 Subscription Order.
+    Used for investment fund subscription orders.
+    """
+
+    master_reference: Optional[str] = None
+    pool_reference: Optional[str] = None
+    orders: Optional[List[Dict[str, Any]]] = None
+
+
+@dataclass
+class Acmt007Message(PaymentMessage):
+    """
+    Detailed schema for ACMT.007 Account Opening Request.
+    """
+
+    process_id: Optional[str] = None
+    account_id: Optional[str] = None
+    account_currency: Optional[str] = None
+    organization_name: Optional[str] = None
+    branch_name: Optional[str] = None
+
+
+@dataclass
+class Acmt015Message(PaymentMessage):
+    """
+    Detailed schema for ACMT.015 Account Excluded Mandate Maintenance Request.
+    """
+
+    process_id: Optional[str] = None
+    account_id: Optional[str] = None
+    organization_name: Optional[str] = None
+    branch_name: Optional[str] = None
+
+
+@dataclass
+class Camt086Message(PaymentMessage):
+    """
+    Detailed schema for CAMT.086 Bank Services Billing Statement.
+    """
+
+    report_id: Optional[str] = None
+    group_id: Optional[str] = None
+    statement_id: Optional[str] = None
+    statement_status: Optional[str] = None
+    creation_date_time: Optional[str] = None
 
 
 @dataclass
