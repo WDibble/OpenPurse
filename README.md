@@ -151,6 +151,25 @@ spec = Exporter.to_openapi()
 Exporter.export_json("schema.json")
 ```
 
+## Reconciliation Engine
+
+OpenPurse can link disjointed financial messages (e.g., an initiation, a status report, and a bank notification) into a single logical lifecycle trace.
+
+```python
+from openpurse.reconciler import Reconciler
+
+# List of messages parsed from different files
+all_messages = [initiation_msg, status_msg, notification_msg]
+
+# Find all related messages for a specific payment
+related = Reconciler.find_matches(initiation_msg, all_messages)
+
+# Build a chronological trace starting from a seed message
+timeline = Reconciler.trace_lifecycle(initiation_msg, all_messages)
+for msg in timeline:
+    print(f"[{msg.__class__.__name__}] ID: {msg.message_id}")
+```
+
 ## Tests
 
 Testing is done using `pytest`. Currently, coverage includes mock definitions for basic `pacs` and `camt` schemas, validating graceful degradation when schemas don't provide creditor/debtor names.
