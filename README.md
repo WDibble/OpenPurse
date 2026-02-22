@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/logo.png" width="200" alt="OpenPurse Logo">
+  <img src="https://raw.githubusercontent.com/WDibble/OpenPurse/main/assets/logo.png" width="200" alt="OpenPurse Logo">
 </p>
 
 <h1 align="center">OpenPurse</h1>
