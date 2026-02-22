@@ -1,5 +1,4 @@
-Environments
-
+# Environments
 .env
 .venv
 env/
@@ -9,26 +8,37 @@ env.bak/
 venv.bak/
 .deps/
 .test_deps/
+test_libs/
 
-Byte-compiled / optimized / DLL files
-
-pycache/
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
 *$py.class
 
-Distribution / packaging
-
+# Distribution / packaging
 dist/
 build/
 *.egg-info/
 .eggs/
 
-IDEs
-
+# IDEs
 .vscode/
 .idea/
+.DS_Store
+Thumbs.db
+
+# Pytest and Cache files
+.pytest_cache/
+.coverage
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+
+# Project specific
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
 
 Note: We are NOT ignoring .agent/rules.md so your AI rules are committed to Git!
-# Pytest and Cache files
-__pycache__/
-.pytest_cache/
