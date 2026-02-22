@@ -8,7 +8,7 @@ version = "0.1.5"
 description = "A lightweight Python package to flatten complex ISO 20022 XML messages into usable data."
 readme = "README.md"
 authors = [
-    { name = "Your Name", email = "your.email@example.com" }
+    { name = "WDibble" }
 ]
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -36,5 +36,5 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/openpurse"
-Issues = "https://github.com/yourusername/openpurse/issues"
+Homepage = "https://github.com/WDibble/OpenPurse"
+Issues = "https://github.com/WDibble/OpenPurse/issues"
