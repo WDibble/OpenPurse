@@ -41,3 +41,25 @@ def test_parse_mt202():
     assert result.get("receiver_bic") == "BANKGB22XXXX"
     assert result.get("amount") == "50000.00"
     assert result.get("currency") == "EUR"
+
+def test_mt_edge_cases():
+    # Empty block 4 essentially
+    bad_mt = b"{1:F01BANKUS33AXXX0000000000}{2:I103RECVGB22XXXXN}{4:\n-}"
+    parser = OpenPurseParser(bad_mt)
+    msg = parser.parse()
+    assert msg.message_id is None
+    assert msg.amount is None
+    assert msg.currency is None
+    assert msg.sender_bic == "BANKUS33AXXX"
+    
+    # Missing Receiver
+    no_recv = b"{1:F01BANKUS33AXXX0000000000}{4:\n:20:MSG1\n-}"
+    parser2 = OpenPurseParser(no_recv)
+    assert parser2.parse().receiver_bic is None
+    
+    # Weird amount format (too short for MT :32A: YYMMDDCurrencyAmount)
+    bad_amt = b"{1:F01BANKUS33AXXX0000000000}{2:I103RECVGB22XXXXN}{4:\n:20:ID\n:32A:1234\n-}"
+    parser3 = OpenPurseParser(bad_amt)
+    msg3 = parser3.parse()
+    assert msg3.amount is None
+    assert msg3.currency is None

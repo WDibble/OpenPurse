@@ -79,13 +79,19 @@ class OpenPurseParser:
         if self.tree is None:
             return None
         try:
-            el = self.tree.xpath(xpath, namespaces=self.ns)
+            if not self.default_ns:
+                xpath = xpath.replace('ns:', '')
+                el = self.tree.xpath(xpath)
+            else:
+                el = self.tree.xpath(xpath, namespaces=self.ns)
+                
             if el:
                 # If the result of xpath is a string (like from /text() or /@attr), return it directly
                 if isinstance(el[0], str):
-                    return el[0]
+                    return el[0].strip()
                 # Otherwise if it's an element, get text
-                return el[0].text if hasattr(el[0], 'text') else str(el[0])
+                text_val = el[0].text if hasattr(el[0], 'text') else str(el[0])
+                return text_val.strip() if text_val else None
             return None
         except Exception:
             return None

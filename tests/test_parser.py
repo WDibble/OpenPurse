@@ -333,3 +333,27 @@ def test_parse_detailed_camt004():
     assert msg.limits[0]["amount"] == "100000.00"
     assert msg.limits[0]["currency"] == "GBP"
     assert msg.limits[0]["credit_debit_indicator"] == "CRDT"
+
+def test_parser_edge_cases():
+    # Invalid XML
+    parser = OpenPurseParser(b"This is not XML or MT")
+    assert parser.tree is None
+    assert parser.parse().message_id is None
+    
+    # Missing namespace element access
+    missing_ns_xml = b"""<Document><FIToFICstmrCdtTrf><GrpHdr><MsgId>BLAH</MsgId></GrpHdr></FIToFICstmrCdtTrf></Document>"""
+    parser2 = OpenPurseParser(missing_ns_xml)
+    msg = parser2.parse()
+    assert msg.message_id == "BLAH"
+    
+    # Empty element text
+    empty_tag_xml = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08">
+        <FIToFICstmrCdtTrf>
+            <GrpHdr>
+                <MsgId></MsgId>
+            </GrpHdr>
+        </FIToFICstmrCdtTrf>
+    </Document>"""
+    parser3 = OpenPurseParser(empty_tag_xml)
+    assert parser3.parse().message_id is None

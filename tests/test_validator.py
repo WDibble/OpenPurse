@@ -55,3 +55,22 @@ def test_nested_transaction_ibans():
     assert report_bad.is_valid is False
     assert len(report_bad.errors) == 1
 
+def test_validator_edge_cases():
+    # Empty and None values should not fail validation
+    msg_empty = PaymentMessage(sender_bic="", receiver_bic=None, debtor_account="", creditor_account=None)
+    report_empty = Validator.validate(msg_empty)
+    assert report_empty.is_valid is True
+    
+    # Dirty but valid IBANs (spaces, hyphens, mixed case)
+    dirty_iban = "  gb90 midl 4005-1522-3344-55  "
+    msg_dirty = MessageBuilder.build("pacs.008", debtor_account=dirty_iban)
+    report_dirty = Validator.validate(msg_dirty)
+    assert report_dirty.is_valid is True
+    
+    # Just barely failing BIC regex (e.g., too short, too long)
+    msg_short_bic = PaymentMessage(sender_bic="BANKUS3")
+    assert Validator.validate(msg_short_bic).is_valid is False
+    
+    msg_long_bic = PaymentMessage(sender_bic="BANKUS33XXX12")
+    assert Validator.validate(msg_long_bic).is_valid is False
+

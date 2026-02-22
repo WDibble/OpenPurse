@@ -49,3 +49,14 @@ def test_builder_fallback_base_message():
     assert type(msg) is PaymentMessage
     assert msg.message_id == "FALLBACK"
     assert msg.amount == "99.99"
+
+def test_builder_edge_cases():
+    # Completely empty kwargs
+    msg_empty = MessageBuilder.build("pacs.008")
+    assert isinstance(msg_empty, Pacs008Message)
+    assert msg_empty.message_id is None
+    
+    # Passing unexpected types (dataclass doesn't strictly enforce at runtime but should store them)
+    msg_types = MessageBuilder.build("camt.054", amount=100.50, total_credit_entries="five")
+    assert msg_types.amount == 100.50
+    assert msg_types.total_credit_entries == "five"

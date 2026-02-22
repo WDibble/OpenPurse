@@ -46,3 +46,29 @@ def test_trace_lifecycle():
     assert status in timeline
     assert notification in timeline
     assert unrelated not in timeline
+
+def test_reconciler_edge_cases():
+    # Both amounts None = true if IDs match
+    msg1 = MessageBuilder.build("pacs.008", end_to_end_id="TX123", amount=None)
+    msg2 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount=None)
+    assert Reconciler.is_match(msg1, msg2) is True
+    
+    # One amount None = true if IDs match
+    msg3 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount="100.00")
+    assert Reconciler.is_match(msg1, msg3) is True
+    
+    # Fuzzy match just outside 1% tolerance
+    msg4 = MessageBuilder.build("pacs.008", end_to_end_id="TX123", amount="100.00", currency="EUR")
+    msg5 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount="101.02", currency="EUR")
+    assert Reconciler.is_match(msg4, msg5, fuzzy_amount=True) is False
+    
+    # Fuzzy match inside 1% tolerance
+    msg6 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount="99.50", currency="EUR")
+    assert Reconciler.is_match(msg4, msg6, fuzzy_amount=True) is True
+    
+    # Non-numeric string equal/unequal
+    msg7 = MessageBuilder.build("pacs.008", end_to_end_id="TX123", amount="ONE HUNDRED", currency="EUR")
+    msg8 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount="ONE HUNDRED", currency="EUR")
+    assert Reconciler.is_match(msg7, msg8) is True
+    msg9 = MessageBuilder.build("camt.054", end_to_end_id="TX123", amount="FIFTY", currency="EUR")
+    assert Reconciler.is_match(msg7, msg9) is False

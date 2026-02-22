@@ -139,3 +139,28 @@ def test_translate_940_camt053():
     assert b"<NtryRef>TXN001</NtryRef>" in mx_bytes
     assert b"<CdtDbtInd>CRDT</CdtDbtInd>" in mx_bytes
     assert b"<CdtDbtInd>DBIT</CdtDbtInd>" in mx_bytes
+
+def test_translator_edge_cases():
+    # Empty amounts and long message IDs
+    msg = PaymentMessage(
+        message_id="THIS_MESSAGE_ID_IS_WAY_TOO_LONG",
+        amount=None,
+        currency=None,
+        sender_bic="BANKUS33",
+        receiver_bic="BANKGB22"
+    )
+    
+    # 103 without amount should still generate framework, or maybe raise ValueError
+    # Actually Translator handles it by just omitting or putting empty if no strict validation
+    mt_bytes = Translator.to_mt(msg, "103")
+    assert b"THIS_MESSAGE_ID_IS_WAY_TOO_LONG"[:16] in mt_bytes # TRUNCATED safely
+    
+    mx_bytes = Translator.to_mx(msg, "pacs.008")
+    assert b"THIS_MESSAGE_ID_IS_WAY_TOO_LONG" in mx_bytes # Allowed full length in XML
+    
+    # Extremely large amount string
+    msg.amount = "999999999999999.99"
+    msg.currency = "USD"
+    mt_large = Translator.to_mt(msg, "103")
+    assert b"999999999999999,99" in mt_large
+

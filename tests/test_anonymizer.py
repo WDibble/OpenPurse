@@ -65,3 +65,25 @@ def test_determinism():
     anonymizer2 = Anonymizer(salt="different")
     alias3 = anonymizer2._get_alias(name)
     assert alias1 != alias3
+
+def test_anonymizer_edge_cases():
+    anonymizer = Anonymizer()
+    
+    # Empty inputs
+    assert anonymizer.anonymize_xml(b"") == b""
+    assert anonymizer.anonymize_mt(b"") == b""
+    
+    # Invalid XML
+    invalid_xml = b"<Doc><Unclosed>"
+    assert anonymizer.anonymize_xml(invalid_xml) == invalid_xml
+    
+    # Short IBAN (less than 15 chars) - should fallback to get_alias
+    short_iban = "GB90MIDL"
+    masked_short = anonymizer._mask_iban(short_iban)
+    assert masked_short.startswith("ACCT_")
+    
+    # Empty or None to mask_iban and get_alias
+    assert anonymizer._mask_iban("") == ""
+    assert anonymizer._get_alias("") == ""
+    assert anonymizer._get_alias("name", prefix="") != "name"
+    assert not anonymizer._get_alias("name", prefix="").startswith("_")
