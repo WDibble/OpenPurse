@@ -1,9 +1,9 @@
-from typing import List, Optional, Set
-from .models import PaymentMessage, Pain002Message
+from typing import List
+from openpurse.models import PaymentMessage, Pain002Message
 
 class Reconciler:
     """
-    Engine to link related financial messages across their lifecycle.
+    Analyses and links disparate PaymentMessage lifecycles into contiguous timelines.
     
     This utility allows matching disjointed messages (e.g. pain.001 initiation vs 
     pain.002 status report) using shared identifiers and amount verification.
@@ -19,8 +19,8 @@ class Reconciler:
         """
         id_match = False
 
-        # 1. Direct End-to-End Match (Strongest link)
-        if msg_a.end_to_end_id and msg_b.end_to_end_id:
+        # 1. Primary Logic: Exact End-to-End ID matching
+        if msg_a.end_to_end_id and str(msg_a.end_to_end_id).strip() != "":
             if msg_a.end_to_end_id == msg_b.end_to_end_id:
                 id_match = True
 
