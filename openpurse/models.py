@@ -192,3 +192,15 @@ class Pain002Message(PaymentMessage):
     original_message_name_id: Optional[str] = None
     group_status: Optional[str] = None
     transactions_status: Optional[list] = None
+
+@dataclass
+class ValidationReport:
+    """
+    Standardized report returning the analytical state of a validated PaymentMessage.
+    
+    Attributes:
+        is_valid (bool): True if no critical layout or checksum errors were found.
+        errors (List[str]): List of precise string messages indicating which rule pipelines failed.
+    """
+    is_valid: bool
+    errors: List[str]
