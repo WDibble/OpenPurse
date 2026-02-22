@@ -123,10 +123,11 @@ class OpenPurseParser:
                 return res[0].text.strip() if hasattr(res[0], "text") and res[0].text else None
             return None
 
+        # Optimized explicitly defined paths to prevent O(N) full tree scanning
         return {
-            "sender_bic": find_text(".//*[local-name()='Fr']//*[local-name()='BICFI']/text()"),
-            "receiver_bic": find_text(".//*[local-name()='To']//*[local-name()='BICFI']/text()"),
-            "message_id": find_text(".//*[local-name()='BizMsgIdr']/text()"),
+            "sender_bic": find_text("./*[local-name()='Fr']/*[local-name()='FIId']/*[local-name()='FinInstnId']/*[local-name()='BICFI']/text()"),
+            "receiver_bic": find_text("./*[local-name()='To']/*[local-name()='FIId']/*[local-name()='FinInstnId']/*[local-name()='BICFI']/text()"),
+            "message_id": find_text("./*[local-name()='BizMsgIdr']/text()"),
         }
 
     def validate_schema(self) -> "ValidationReport":
@@ -959,7 +960,7 @@ class OpenPurseParser:
         """
         base = self.parse()
 
-        original_grp_info = self._get_nodes("//ns:OrgnlGrpInf")
+        original_grp_info = self._get_nodes(".//ns:OrgnlGrpInf")
         orig_msg_id = None
         orig_msg_nm_id = None
         if original_grp_info:
@@ -967,11 +968,11 @@ class OpenPurseParser:
             orig_msg_nm_id = self._get_text_from(original_grp_info[0], "./ns:OrgnlMsgNmId/text()")
 
         recall_reason = self._get_text(
-            "//ns:OrgnlTxRef/ns:Rsn/ns:Prtry/text() | //ns:OrgnlTxRef/ns:Rsn/ns:Cd/text()"
+            ".//ns:OrgnlTxRef/ns:Rsn/ns:Prtry/text() | .//ns:OrgnlTxRef/ns:Rsn/ns:Cd/text()"
         )
 
         transactions = []
-        for tx in self._get_nodes("//ns:Undrlyg"):
+        for tx in self._get_nodes(".//ns:Undrlyg"):
             tx_id = self._get_text_from(tx, ".//ns:OrgnlEndToEndId/text()")
             tx_uetr = self._get_text_from(tx, ".//ns:OrgnlUETR/text()")
             transactions.append({"end_to_end_id": tx_id, "uetr": tx_uetr})
@@ -989,9 +990,9 @@ class OpenPurseParser:
             currency=base.currency,
             sender_bic=base.sender_bic,
             receiver_bic=base.receiver_bic,
-            creation_date_time=self._get_text("//ns:CreDtTm/text()"),
-            assignment_id=self._get_text("//ns:Assgnmt/ns:Id/text()"),
-            case_id=self._get_text("//ns:Case/ns:Id/text()"),
+            creation_date_time=self._get_text(".//ns:CreDtTm/text()"),
+            assignment_id=self._get_text(".//ns:Assgnmt/ns:Id/text()"),
+            case_id=self._get_text(".//ns:Case/ns:Id/text()"),
             original_message_id=orig_msg_id,
             original_message_name_id=orig_msg_nm_id,
             recall_reason=recall_reason,
@@ -1004,7 +1005,7 @@ class OpenPurseParser:
         """
         base = self.parse()
 
-        status_node = self._get_nodes("//ns:Sts")
+        status_node = self._get_nodes(".//ns:Sts")
         investigation_status = None
         if status_node:
             investigation_status = self._get_text_from(
@@ -1012,7 +1013,7 @@ class OpenPurseParser:
             )
 
         cancellation_details = []
-        for detail in self._get_nodes("//ns:CxlDtls"):
+        for detail in self._get_nodes(".//ns:CxlDtls"):
             orig_id = self._get_text_from(detail, ".//ns:OrgnlEndToEndId/text()")
             orig_uetr = self._get_text_from(detail, ".//ns:OrgnlUETR/text()")
             cxl_sts = self._get_text_from(detail, ".//ns:TxCxlSts/text()")
@@ -1035,9 +1036,9 @@ class OpenPurseParser:
             currency=base.currency,
             sender_bic=base.sender_bic,
             receiver_bic=base.receiver_bic,
-            creation_date_time=self._get_text("//ns:CreDtTm/text()"),
-            assignment_id=self._get_text("//ns:Assgnmt/ns:Id/text()"),
-            case_id=self._get_text("//ns:Case/ns:Id/text()"),
+            creation_date_time=self._get_text(".//ns:CreDtTm/text()"),
+            assignment_id=self._get_text(".//ns:Assgnmt/ns:Id/text()"),
+            case_id=self._get_text(".//ns:Case/ns:Id/text()"),
             investigation_status=investigation_status,
             cancellation_details=cancellation_details,
         )

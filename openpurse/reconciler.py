@@ -32,18 +32,18 @@ class Reconciler:
         # 3. Tier 3: Cross-reference logic for status/investigation reports
         if not id_match:
             # Pain.002 Status Reports
-            if isinstance(msg_a, Pain002Message) and msg_a.original_message_id == msg_b.message_id:
+            if isinstance(msg_a, Pain002Message) and msg_a.original_message_id and msg_a.original_message_id == msg_b.message_id:
                 id_match = True
             elif (
-                isinstance(msg_b, Pain002Message) and msg_b.original_message_id == msg_a.message_id
+                isinstance(msg_b, Pain002Message) and msg_b.original_message_id and msg_b.original_message_id == msg_a.message_id
             ):
                 id_match = True
 
             # Camt.056 Recall Requests
-            elif isinstance(msg_a, Camt056Message) and msg_a.original_message_id == msg_b.message_id:
+            elif isinstance(msg_a, Camt056Message) and msg_a.original_message_id and msg_a.original_message_id == msg_b.message_id:
                 id_match = True
             elif (
-                isinstance(msg_b, Camt056Message) and msg_b.original_message_id == msg_a.message_id
+                isinstance(msg_b, Camt056Message) and msg_b.original_message_id and msg_b.original_message_id == msg_a.message_id
             ):
                 id_match = True
 

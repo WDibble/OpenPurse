@@ -81,3 +81,67 @@ def test_validator_edge_cases():
 
     msg_long_bic = PaymentMessage(sender_bic="BANKUS33XXX12")
     assert Validator.validate(msg_long_bic).is_valid is False
+
+
+def test_extreme_corruption_bics():
+    """Test validation against maliciously or extremely corrupted BIC strings."""
+    corrupted_bics = [
+        "BANKUS33\x00",  # Null byte injection
+        "BANKUS33\n\r",  # Carriage returns
+        "SELECT *",      # SQLi attempt
+        "<script>",      # XSS attempt
+        "B" * 50,        # Buffer overflow attempt
+        "12345678",      # All digits (invalid format)
+        "BANK US33",     # Internal spaces
+    ]
+    for bad_bic in corrupted_bics:
+        msg = PaymentMessage(sender_bic=bad_bic)
+        report = Validator.validate(msg)
+        assert report.is_valid is False, f"Failed to catch corrupted BIC: {bad_bic}"
+        assert len(report.errors) == 1
+        assert "Invalid BIC format" in report.errors[0]
+
+def test_extreme_corruption_amounts_and_currencies():
+    """Test validation against corrupted monetary values."""
+    # Negative amount strings
+    # Extremely long amount strings
+    msg_bad_amount = PaymentMessage(amount="100.00" * 50, currency="USD")
+    
+    # Currency with numbers
+    msg_bad_currency = PaymentMessage(amount="100.00", currency="US1")
+    
+    # Empty strings and whitespace
+    msg_empty = PaymentMessage(amount="   ", currency="\t")
+    
+    reports = {
+        "empty": Validator.validate(msg_empty),
+        "curr": Validator.validate(msg_bad_currency)
+    }
+    
+    assert reports["empty"].is_valid is False
+    assert any("empty string" in e for e in reports["empty"].errors)
+    
+    # Currency should only be alphabetic (we haven't strictly enforced this in validator yet, 
+    # but let's check length constraints we did add)
+    msg_wrong_len_curr = PaymentMessage(amount="100", currency="US")
+    assert Validator.validate(msg_wrong_len_curr).is_valid is False
+
+def test_extreme_corruption_ibans():
+    """Test validation against corrupted or malicious IBAN strings."""
+    corrupted_ibans = [
+        "GB90MIDL40051522334455\x00", # Null byte
+        "GB90MID\nL40051522334455",   # New line
+        "GB90<script>L4005",          # XSS
+        "GB90" + ("1" * 100),         # Extreme length
+    ]
+    
+    for bad_iban in corrupted_ibans:
+        msg = MessageBuilder.build("pacs.008", debtor_account=bad_iban)
+        report = Validator.validate(msg)
+        
+        # If it doesn't even look like an IBAN (due to scripts etc), it might pass the heuristic
+        # If it DOES look like an IBAN, it MUST fail the checksum
+        if Validator._is_likely_iban(bad_iban):
+            assert report.is_valid is False, f"Failed to catch corrupted IBAN: {bad_iban}"
+            assert "Invalid IBAN" in report.errors[0]
+

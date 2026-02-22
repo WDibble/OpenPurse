@@ -10,11 +10,11 @@ class Validator:
     SWIFT & ISO compliance patterns.
     """
 
-    _bic_pattern = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
+    _bic_pattern = re.compile(r"\A[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?\Z")
     _iban_clean_pattern = re.compile(r"[^A-Z0-9]")
-    _iban_format_pattern = re.compile(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$")
+    _iban_format_pattern = re.compile(r"\A[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}\Z")
     _uuid4_pattern = re.compile(
-        r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I
+        r"\A[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\Z", re.I
     )
 
     @staticmethod
@@ -25,9 +25,8 @@ class Validator:
         if not uetr:
             return None
 
-        clean_uetr = uetr.strip()
-        if not Validator._uuid4_pattern.match(clean_uetr):
-            return f"Invalid UETR format: '{clean_uetr}'. Must be a valid UUIDv4 string."
+        if not Validator._uuid4_pattern.match(uetr):
+            return f"Invalid UETR format: '{uetr}'. Must be a valid UUIDv4 string."
 
         return None
 
@@ -40,11 +39,9 @@ class Validator:
         if not bic:
             return None
 
-        clean_bic = bic.strip()
-
-        if not Validator._bic_pattern.match(clean_bic):
+        if not Validator._bic_pattern.match(bic):
             return (
-                f"Invalid BIC format: '{clean_bic}'. Must securely match ISO 9362 "
+                f"Invalid BIC format: '{bic}'. Must securely match ISO 9362 "
                 "standard 8 or 11 characters."
             )
 
@@ -59,8 +56,14 @@ class Validator:
         """
         if not iban:
             return False
+            
+        # For the heuristic check ONLY, we strip out everything to see if it even remotely 
+        # resembles an IBAN in its core alphanumeric structure. We do this so that malicious 
+        # formatting (like newlines) doesn't bypass validation by tricking the engine into 
+        # thinking it's not an IBAN account field at all.
         clean_iban = Validator._iban_clean_pattern.sub("", iban.upper())
-        return bool(Validator._iban_format_pattern.match(clean_iban))
+        prefix_match = re.match(r"\A[A-Z]{2}[0-9]{2}", clean_iban)
+        return bool(prefix_match)
 
     @staticmethod
     def _validate_iban_checksum(iban: str) -> Optional[str]:
@@ -72,10 +75,21 @@ class Validator:
         if not iban:
             return None
 
-        clean_iban = Validator._iban_clean_pattern.sub("", iban.upper())
+        # Pre-check: Reject excessively long strings immediately
+        if len(iban) > 100:
+             return f"Invalid IBAN structure: excessively long string rejected."
 
-        # 1. Rearrange: move the first four characters to the end
-        rearranged = clean_iban[4:] + clean_iban[:4]
+        # 1. Sanitize only standard formatting characters (spaces and hyphens)
+        cleaner_pattern = re.compile(r"[ \-]")
+        formatted_iban = cleaner_pattern.sub("", iban.strip().upper())
+
+        # 2. Strict ISO 13616 Format check on the resulting alphanumeric string
+        # This catches injections, null bytes, special characters, and invalid lengths
+        if not Validator._iban_format_pattern.match(formatted_iban) or "\n" in formatted_iban or "\r" in formatted_iban:
+             return f"Invalid IBAN format: '{iban.strip()}' does not meet ISO 13616 standards or contains illegal characters."
+
+        # 3. Rearrange: move the first four characters to the end
+        rearranged = formatted_iban[4:] + formatted_iban[:4]
 
         # 2. Convert: replace letters with digits (A=10, B=11... Z=35)
         numeric_iban = "".join(
@@ -88,11 +102,11 @@ class Validator:
         try:
             if int(numeric_iban) % 97 != 1:
                 return (
-                    f"Invalid IBAN checksum: '{clean_iban}'. Failed international "
+                    f"Invalid IBAN checksum: '{formatted_iban}'. Failed international "
                     "Modulo-97 algorithm."
                 )
         except ValueError:
-            return f"Invalid IBAN structure: '{clean_iban}'. Could not evaluate checksum."
+            return f"Invalid IBAN structure: '{formatted_iban}'. Could not evaluate checksum."
 
         return None
 
@@ -184,8 +198,8 @@ class Validator:
             curr_str = str(message.currency).strip()
             if curr_str == "":
                 errors.append("currency is present but is an empty string.")
-            elif len(curr_str) != 3:
-                errors.append(f"currency must be exactly 3 characters, found: '{curr_str}'")
+            elif len(curr_str) != 3 or not curr_str.isalpha():
+                errors.append(f"currency must be exactly 3 alphabetical characters, found: '{curr_str}'")
         # 2. Dynamic specific attribute IBAN extraction checks
         # Pacs008, Pain001, Pain008, etc. inherently provide debtor/creditor
         # explicit elements if loaded fully
