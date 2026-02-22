@@ -463,7 +463,7 @@ class OpenPurseParser:
             amount=self._get_text("//*[@Ccy][1]/text()"),
             currency=self._get_text("//*[@Ccy][1]/@Ccy"),
             sender_bic=self._get_text(
-                "//ns:InstgAgt//ns:BICFI/text() | //ns:InitgPty//ns:AnyBIC/text() | //ns:InstgAgt//ns:Othr/ns:Id/text()"
+                "//ns:InstgAgt//ns:BICFI/text() | //ns:InitgPty//ns:AnyBIC/text() | //ns:DbtrAgt//ns:BICFI/text() | //ns:InstgAgt//ns:Othr/ns:Id/text()"
             )
             or self.bah_data.get("sender_bic"),
             receiver_bic=self._get_text(
