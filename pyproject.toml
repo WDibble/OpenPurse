@@ -31,7 +31,8 @@ classifiers = [
 dev = [
     "pytest>=7.0.0",
     "build",
-    "twine"
+    "twine",
+    "PyYAML"
 ]
 
 [project.urls]

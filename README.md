@@ -21,31 +21,17 @@ pip install openpurse
 
 To publish a new version of OpenPurse to PyPI:
 
-1. Ensure your `pyproject.toml` has the correct version number.
-2. Build the distribution packages:
-   ```bash
-   python -m build
-   ```
-3. Upload to PyPI:
-   ```bash
-   python -m twine upload dist/*
-   ```
-   You will be prompted for your PyPI API token.
-
-### Updating to a New Version
-
-When you make changes to OpenPurse and want to publish an update:
-
-1. Open `pyproject.toml` and increment the `version` (e.g. `"0.1.1"`).
-2. Delete the old build artifacts in the `dist/` directory:
-   ```bash
-   rm -rf dist/
-   ```
-3. Rebuild and upload:
-   ```bash
-   python -m build
-   python -m twine upload dist/*
-   ```
+1.  **Configure Credentials**: Copy `.env.example` to `.env` and add your PyPI API token:
+    ```bash
+    cp .env.example .env
+    # Then edit .env and add your token to TWINE_PASSWORD
+    ```
+2.  **Update Version**: Increment the `version` in `pyproject.toml`.
+3.  **Run Release Script**:
+    ```bash
+    ./scripts/publish.sh
+    ```
+    This script will automatically clean old builds, rebuild the package, and upload the new version to PyPI using your stored token.
 
 To install development dependencies (for running tests):
 
@@ -136,6 +122,34 @@ Whether you call `.parse()` (which yields a `PaymentMessage` dataclass instance)
 - `creditor_name`: Cdtr/Nm (XML) or :59: tags (MT)
 
 Missing or optional fields gracefully return `None`.
+
+## OpenAPI & JSON Schema Export
+
+OpenPurse allows you to export its standard settlement models as OpenAPI 3.0 or JSON Schema definitions. This is ideal for developers building REST APIs that need to expose these financial models.
+
+### Via CLI
+
+Use the provided export script to generate a schema file:
+
+```bash
+# Generate JSON (default)
+./scripts/export_schema.py --output openapi.json
+
+# Generate YAML (requires PyYAML)
+./scripts/export_schema.py --format yaml --output openapi.yaml
+```
+
+### Via Python API
+
+```python
+from openpurse.exporter import Exporter
+
+# Get the spec as a dictionary
+spec = Exporter.to_openapi()
+
+# Or export directly to a file
+Exporter.export_json("schema.json")
+```
 
 ## Tests
 
