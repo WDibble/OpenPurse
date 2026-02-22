@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-Instance">
+	<BkToCstmrStmt>
+		<GrpHdr>
+			<MsgId>CAMT06342120150429015</MsgId>
+			<CreDtTm>2015-04-29T06:38:08</CreDtTm>
+		</GrpHdr>
+		<Stmt>
+			<Id>33212516332015042800001</Id>
+			<ElctrncSeqNb>201500021</ElctrncSeqNb>
+			<CreDtTm>2015-04-29T06:38:08</CreDtTm>
+			<Acct>
+				<Id>
+					<IBAN>GB87HAND40516218000025</IBAN>
+				</Id>
+				<Ccy>GBP</Ccy>
+				<Ownr>
+					<Id>
+						<OrgId>
+							<Othr>
+								<Id>3321251633</Id>
+								<SchmeNm>
+									<Cd>BANK</Cd>
+								</SchmeNm>
+							</Othr>
+						</OrgId>
+					</Id>
+				</Ownr>
+				<Svcr>
+					<FinInstnId>
+						<BIC>HANDGB22</BIC>
+					</FinInstnId>
+				</Svcr>
+			</Acct>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>OPBD</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="GBP">6.87</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-04-28</Dt>
+				</Dt>
+			</Bal>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>CLBD</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="GBP">6.77</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-04-28</Dt>
+				</Dt>
+			</Bal>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>CLAV</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="GBP">6.77</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-04-28</Dt>
+				</Dt>
+			</Bal>
+			<TxsSummry>
+				<TtlCdtNtries>
+					<NbOfNtries>1</NbOfNtries>
+					<Sum>1.5</Sum>
+				</TtlCdtNtries>
+				<TtlDbtNtries>
+					<NbOfNtries>1</NbOfNtries>
+					<Sum>1.6</Sum>
+				</TtlDbtNtries>
+			</TxsSummry>
+			<Ntry>
+				<NtryRef>3321251633201504280000100001</NtryRef>
+				<Amt Ccy="GBP">1.60</Amt>
+				<CdtDbtInd>DBIT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2015-04-28</Dt>
+				</BookgDt>
+				<ValDt>
+					<Dt>2015-04-28</Dt>
+				</ValDt>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>ICDT</Cd>
+							<SubFmlyCd>DMCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<Refs>
+							<PmtInfId>FILE REF 1</PmtInfId>
+							<EndToEndId>OWN REF 15</EndToEndId>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="GBP">.6</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="GBP">.6</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Cdtr>
+								<Nm>CASH POOL COMPANY</Nm>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>18000026</Id>
+										<SchmeNm>
+											<Cd>BBAN</Cd>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDGB22</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>GBDSC</Cd>
+										</ClrSysId>
+										<MmbId>SC405162</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Ustrd>Message to beneficiary line 1</Ustrd>
+							<Ustrd>Message to beneficiary line 2</Ustrd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+			<Ntry>
+				<NtryRef>3321251633201504280000100002</NtryRef>
+				<Amt Ccy="GBP">1.50</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2015-04-28</Dt>
+				</BookgDt>
+				<ValDt>
+					<Dt>2015-04-28</Dt>
+				</ValDt>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>RCDT</Cd>
+							<SubFmlyCd>NTAV</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>COMPANY A LTD?LONDON</Nm>
+							</Dbtr>
+						</RltdPties>
+						<RmtInf>
+							<Ustrd>Message to beneficiary?Message line 2?Message Line 3</Ustrd>
+						</RmtInf>
+						<AddtlTxInf>/REMI/Message to beneficiary?Message line 2?Message Line 3/ORDP/COMPANY A LTD?LONDON/CHGS/SHA</AddtlTxInf>
+					</TxDtls>
+				</NtryDtls>
+				<AddtlNtryInf>NOLI070001098805 B/O COMPANY A LTD</AddtlNtryInf>
+			</Ntry>
+		</Stmt>
+	</BkToCstmrStmt>
+</Document>

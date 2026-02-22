@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03">
+	<CstmrPmtStsRpt>
+		<GrpHdr>
+			<MsgId>16051913433300202</MsgId>
+			<CreDtTm>2016-05-19T13:43:33</CreDtTm>
+			<InitgPty>
+				<Id>
+					<OrgId>
+						<BICOrBEI>HANDSESS</BICOrBEI>
+					</OrgId>
+				</Id>
+			</InitgPty>
+		</GrpHdr>
+		<OrgnlGrpInfAndSts>
+			<OrgnlMsgId>201605171309bSTRP</OrgnlMsgId>
+			<OrgnlMsgNmId>pain.001.001.03</OrgnlMsgNmId>
+			<OrgnlCreDtTm>2013-06-16T13:46:00</OrgnlCreDtTm>
+			<OrgnlNbOfTxs>2</OrgnlNbOfTxs>
+			<OrgnlCtrlSum>414.34</OrgnlCtrlSum>
+			<NbOfTxsPerSts>
+				<DtldNbOfTxs>1</DtldNbOfTxs>
+				<DtldSts>RJCT</DtldSts>
+			</NbOfTxsPerSts>
+		</OrgnlGrpInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>STRP20160516TC03</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000008</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 1</OrgnlEndToEndId>
+				<TxSts>RJCT</TxSts>
+				<StsRsnInf>
+					<Orgtr>
+						<Id>
+							<OrgId>
+								<BICOrBEI>HANDSESS</BICOrBEI>
+							</OrgId>
+						</Id>
+					</Orgtr>
+					<Rsn>
+						<Cd>AC03</Cd>
+					</Rsn>
+					<AddtlInf>Beneficiary account number is incorrect</AddtlInf>
+				</StsRsnInf>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="GBP">222.17</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-05-17</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor Name</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<Othr>
+								<Id>44444001</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDGB20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<ClrSysId>
+									<Cd>GBDSC</Cd>
+								</ClrSysId>
+								<MmbId>203253</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor Name</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<Othr>
+								<Id>1142306x</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+	</CstmrPmtStsRpt>
+</Document>

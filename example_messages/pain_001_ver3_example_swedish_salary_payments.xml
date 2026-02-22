@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<CstmrCdtTrfInitn>
+		<GrpHdr>
+			<MsgId>Example SALA</MsgId>
+			<CreDtTm>2021-03-30T00:00:00</CreDtTm>
+			<NbOfTxs>1</NbOfTxs>
+			<CtrlSum>100.00</CtrlSum>
+			<InitgPty>
+				<Id>
+					<OrgId>
+						<Othr>
+							<Id>123456789</Id>
+						</Othr>
+					</OrgId>
+				</Id>
+			</InitgPty>
+		</GrpHdr>
+		<PmtInf>
+			<PmtInfId>Example SALA</PmtInfId>
+			<PmtMtd>TRF</PmtMtd>
+			<ReqdExctnDt>2021-05-25</ReqdExctnDt>
+			<Dbtr>
+				<Nm>TESTCOMPANY</Nm>
+				<Id>
+					<OrgId>
+						<Othr>
+							<Id>123456789</Id>
+						</Othr>
+					</OrgId>
+				</Id>
+				<CtryOfRes>SE</CtryOfRes>
+			</Dbtr>
+			<DbtrAcct>
+				<Id>
+					<IBAN>SE1110000000000123456789</IBAN>
+				</Id>
+			</DbtrAcct>
+			<DbtrAgt>
+				<FinInstnId>
+					<BIC>HANDSESS</BIC>
+				</FinInstnId>
+			</DbtrAgt>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>Example SALA</InstrId>
+					<EndToEndId>Referens</EndToEndId>
+				</PmtId>
+				<PmtTpInf>
+					<SvcLvl>
+						<Cd>NURG</Cd>
+					</SvcLvl>
+					<CtgyPurp>
+						<Cd>SALA</Cd>
+					</CtgyPurp>
+				</PmtTpInf>
+				<Amt>
+					<InstdAmt Ccy="SEK">100.00</InstdAmt>
+				</Amt>
+				<CdtrAgt>
+					<FinInstnId>
+						<ClrSysMmbId>
+							<ClrSysId>
+								<Cd>SESBA</Cd>
+							</ClrSysId>
+							<MmbId>6000</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<Nm>TEST TESTSON</Nm>
+				</Cdtr>
+				<CdtrAcct>
+					<Id>
+						<Othr>
+							<Id>123456789</Id>
+							<SchmeNm>
+								<Cd>BBAN</Cd>
+							</SchmeNm>
+						</Othr>
+					</Id>
+				</CdtrAcct>
+			</CdtTrfTxInf>
+		</PmtInf>
+	</CstmrCdtTrfInitn>
+</Document>

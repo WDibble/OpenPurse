@@ -1,0 +1,457 @@
+<!--Sweden Credit notification camt054, 2 crossborder payments with and without exchange and 2 Bankgiro-payments, one batched and one single-->
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance=">
+	<BkToCstmrDbtCdtNtfctn>
+		<GrpHdr>
+			<MsgId>CAMT21361020120815004</MsgId>
+			<CreDtTm>2012-09-24T11:25:19</CreDtTm>
+			<AddtlInf>/CRED/</AddtlInf>
+		</GrpHdr>
+		<Ntfctn>
+			<Id>55667788992012081500001</Id>
+			<CreDtTm>2012-09-24T11:25:19</CreDtTm>
+			<Acct>
+				<Id>
+					<Othr>
+						<Id>123456789</Id>
+						<SchmeNm>
+							<Cd>BBAN</Cd>
+						</SchmeNm>
+					</Othr>
+				</Id>
+				<Ccy>SEK</Ccy>
+				<Ownr>
+					<Id>
+						<OrgId>
+							<Othr>
+								<Id>5566778899</Id>
+								<SchmeNm>
+									<Cd>BANK</Cd>
+								</SchmeNm>
+							</Othr>
+						</OrgId>
+					</Id>
+				</Ownr>
+				<Svcr>
+					<FinInstnId>
+						<BIC>HANDSESS</BIC>
+						<ClrSysMmbId>
+							<ClrSysId>
+								<Cd>SESBA</Cd>
+							</ClrSysId>
+							<MmbId>6000</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</Svcr>
+			</Acct>
+			<TxsSummry>
+				<TtlNtries>
+					<NbOfNtries>4</NbOfNtries>
+					<Sum>4602967.56</Sum>
+					<CdtDbtInd>CRDT</CdtDbtInd>
+				</TtlNtries>
+			</TxsSummry>
+			<Ntry>
+				<NtryRef>5566778899201208150000200001</NtryRef>
+				<Amt Ccy="SEK">4525203</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<ValDt>
+					<Dt>2012-08-15</Dt>
+				</ValDt>
+				<AcctSvcrRef>27957413</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>RCDT</Cd>
+							<SubFmlyCd>XBCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">4525203</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">4525203</Amt>
+							</TxAmt>
+							<PrtryAmt>
+								<Tp>IBS</Tp>
+								<Amt Ccy="SEK">4525203</Amt>
+							</PrtryAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>DEBTOR IN NORWAY</Nm>
+								<PstlAdr>
+									<AdrLine>POSTBOKS LYSAKER</AdrLine>
+								</PstlAdr>
+							</Dbtr>
+							<Cdtr>
+								<Nm>CREDITOR NAME</Nm>
+								<PstlAdr>
+									<AdrLine>CREDITOR STREET</AdrLine>
+									<AdrLine>123 45 CREDITOR TOWN</AdrLine>
+								</PstlAdr>
+							</Cdtr>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>ESSENOKX</BIC>
+									<Nm>SKANDINAVISKA ENSKILDA BANKEN AB</Nm>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>6000</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Ustrd>INVOICE 7077538 , 7077539</Ustrd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+			<Ntry>
+				<NtryRef>5566778899201208150000200002</NtryRef>
+				<Amt Ccy="SEK">133.56</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<ValDt>
+					<Dt>2012-08-17</Dt>
+				</ValDt>
+				<AcctSvcrRef>27968444</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>RCDT</Cd>
+							<SubFmlyCd>XBCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="DKK">121</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">133.56</Amt>
+								<CcyXchg>
+									<SrcCcy>DKK</SrcCcy>
+									<TrgtCcy>SEK</TrgtCcy>
+									<UnitCcy>DKK</UnitCcy>
+									<XchgRate>1.1038</XchgRate>
+								</CcyXchg>
+							</TxAmt>
+							<CntrValAmt>
+								<Amt Ccy="SEK">133.56</Amt>
+							</CntrValAmt><PrtryAmt>
+								<Tp>IBS</Tp>
+								<Amt Ccy="DKK">121</Amt>
+							</PrtryAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>DEBTOR DENMARK A/S</Nm>
+								<PstlAdr>
+									<AdrLine>DEBTOR ROAD 366</AdrLine>
+								</PstlAdr>
+							</Dbtr>
+							<Cdtr>
+								<Nm>CREDITOR NAME</Nm>
+								<PstlAdr>
+									<AdrLine>CREDITOR STREET</AdrLine>
+									<AdrLine>123 45 CREDITOR TOWN</AdrLine>
+								</PstlAdr>
+							</Cdtr>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>DABADKKK</BIC>
+									<Nm>DANSKE BANK A/S</Nm>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>6000</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Ustrd>INVOICE 7077370</Ustrd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+			<Ntry>
+				<NtryRef>5566778899201208150000200003</NtryRef>
+				<Amt Ccy="SEK">46381</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2012-08-15</Dt>
+				</BookgDt>
+				<AcctSvcrRef> 00062</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>RCDT</Cd>
+							<SubFmlyCd>DMCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<Btch>
+						<NbOfTxs>2</NbOfTxs>
+						<TtlAmt Ccy="SEK">46381</TtlAmt>
+						<CdtDbtInd>CRDT</CdtDbtInd>
+					</Btch>
+					<TxDtls>
+						<Refs>
+							<ClrSysRef>492950069860</ClrSysRef>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">42500</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">42500</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>DEBTOR AB</Nm>
+								<PstlAdr>
+									<PstCd>200 00</PstCd>
+									<TwnNm>MALMO</TwnNm>
+									<AdrLine>BOX 1</AdrLine>
+								</PstlAdr>
+							</Dbtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>9998888</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>6000</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>7077982</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="SEK">42500</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+					<TxDtls>
+						<Refs>
+							<ClrSysRef>492950030649</ClrSysRef>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">3881</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">3881</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>DEBTOR 2 AB</Nm>
+								<PstlAdr>
+									<StrtNm>VAGEN 1</StrtNm>
+									<PstCd>90000</PstCd>
+									<TwnNm>BODEN</TwnNm>
+								</PstlAdr>
+							</Dbtr>
+							<DbtrAcct>
+								<Id>
+									<Othr>
+										<Id>55554444</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</DbtrAcct>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>9998888</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>6000</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>7078214           5006740</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="SEK">3881</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+			<Ntry>
+				<NtryRef>5562392463201208150000200004</NtryRef>
+				<Amt Ccy="SEK">31250</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2012-08-15</Dt>
+				</BookgDt>
+				<AcctSvcrRef> 00108</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>RCDT</Cd>
+							<SubFmlyCd>DMCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<Refs>
+							<ClrSysRef>492950108394</ClrSysRef>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">31250</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">31250</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>DEBTOR 3 AB</Nm>
+								<PstlAdr>
+									<StrtNm>Vagen 3</StrtNm>
+									<PstCd>10000</PstCd>
+									<TwnNm>STOCKHOLM</TwnNm>
+								</PstlAdr>
+							</Dbtr>
+							<DbtrAcct>
+								<Id>
+									<Othr>
+										<Id>52222222</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</DbtrAcct>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>1234567</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>6000</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>7078231</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="SEK">31250</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+		</Ntfctn>
+	</BkToCstmrDbtCdtNtfctn>
+</Document>

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "openpurse"
-version = "0.1.0"
+version = "0.1.1"
 description = "A lightweight Python package to flatten complex ISO 20022 XML messages into usable data."
 readme = "README.md"
 authors = [

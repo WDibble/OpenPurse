@@ -1,0 +1,180 @@
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<BkToCstmrDbtCdtNtfctn>
+		<GrpHdr>
+			<MsgId>Message ID</MsgId>
+			<CreDtTm>2012-10-24T12:07:41</CreDtTm>
+			<AddtlInf>/DEBT/</AddtlInf>
+		</GrpHdr>
+		<Ntfctn>
+			<Id>Notification ID</Id>
+			<CreDtTm>2012-10-24T12:07:41</CreDtTm>
+			<Acct>
+				<Id>
+					<Othr>
+						<Id>123456789</Id>
+						<SchmeNm>
+							<Cd>BBAN</Cd>
+						</SchmeNm>
+					</Othr>
+				</Id>
+				<Ownr>
+					<Id>
+						<OrgId>
+							<Othr>
+								<Id>5567561234</Id>
+								<SchmeNm>
+									<Cd>BANK</Cd>
+								</SchmeNm>
+							</Othr>
+						</OrgId>
+					</Id>
+				</Ownr>
+				<Svcr>
+					<FinInstnId>
+						<BIC>HANDSESS</BIC>
+						<ClrSysMmbId>
+							<ClrSysId>
+								<Cd>SESBA</Cd>
+							</ClrSysId>
+							<MmbId>6000</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</Svcr>
+			</Acct>
+			<TxsSummry>
+				<TtlNtries>
+					<NbOfNtries>1</NbOfNtries>
+					<Sum>147.5</Sum>
+					<CdtDbtInd>DBIT</CdtDbtInd>
+				</TtlNtries>
+			</TxsSummry>
+			<Ntry>
+				<NtryRef>Entry reference</NtryRef>
+				<Amt Ccy="SEK">147.5</Amt>
+				<CdtDbtInd>DBIT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2012-12-22</Dt>
+				</BookgDt>
+				<AcctSvcrRef>Account Servicer Reference</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>ICDT</Cd>
+							<SubFmlyCd>DMCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<Refs>
+							<MsgId>Message ID from</MsgId>
+							<PmtInfId>Payment Information</PmtInfId>
+							<EndToEndId>Debtor´s own reference</EndToEndId>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">147.5</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">147.5</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<Dbtr>
+								<Nm>Debtor Name</Nm>
+							</Dbtr>
+							<Cdtr>
+								<Nm>Creditor Name</Nm>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>53535454</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>9900</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Invoice number 123</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="SEK">550.1</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Invoice number 124</Nb>
+									<RltdDt>2012-12-18</RltdDt>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="SEK">225.1</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CREN</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Credit note number 223</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<CdtNoteAmt Ccy="SEK">312.3</CdtNoteAmt>
+								</RfrdDocAmt>
+							</Strd>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CREN</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Credit note number 224</Nb>
+									<RltdDt>2012-12-19</RltdDt>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<CdtNoteAmt Ccy="SEK">315.4</CdtNoteAmt>
+								</RfrdDocAmt>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+		</Ntfctn>
+	</BkToCstmrDbtCdtNtfctn>
+</Document>

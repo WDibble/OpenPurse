@@ -1,0 +1,436 @@
+<?xml version="1.0"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-Instance">
+	<BkToCstmrStmt>
+		<GrpHdr>
+			<MsgId>CAMT06553020130619002</MsgId>
+			<CreDtTm>2015-06-19T06:58:32</CreDtTm>
+		</GrpHdr>
+		<Stmt>
+			<Id>33221111222015061800001</Id>
+			<ElctrncSeqNb>201500001</ElctrncSeqNb>
+			<CreDtTm>2015-06-19T06:58:32</CreDtTm>
+			<Acct>
+				<Id>
+					<Othr>
+						<Id>987654321</Id>
+						<SchmeNm>
+							<Cd>BBAN</Cd>
+						</SchmeNm>
+					</Othr>
+				</Id>
+				<Ccy>SEK</Ccy>
+				<Ownr>
+					<Id>
+						<OrgId>
+							<Othr>
+								<Id>3322111122</Id>
+								<SchmeNm>
+									<Cd>BANK</Cd>
+								</SchmeNm>
+							</Othr>
+						</OrgId>
+					</Id>
+				</Ownr>
+				<Svcr>
+					<FinInstnId>
+						<BIC>HANDSESS</BIC>
+						<ClrSysMmbId>
+							<ClrSysId>
+								<Cd>SESBA</Cd>
+							</ClrSysId>
+							<MmbId>6001</MmbId>
+						</ClrSysMmbId>
+					</FinInstnId>
+				</Svcr>
+			</Acct>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>OPBD</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="SEK">1000000</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-06-18</Dt>
+				</Dt>
+			</Bal>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>CLBD</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="SEK">801840.88</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-06-18</Dt>
+				</Dt>
+			</Bal>
+			<Bal>
+				<Tp>
+					<CdOrPrtry>
+						<Cd>CLAV</Cd>
+					</CdOrPrtry>
+				</Tp>
+				<Amt Ccy="SEK">801840.88</Amt>
+				<CdtDbtInd>CRDT</CdtDbtInd>
+				<Dt>
+					<Dt>2015-06-18</Dt>
+				</Dt>
+			</Bal>
+			<TxsSummry>
+			<TtlDbtNtries>
+					<NbOfNtries>2</NbOfNtries>
+					<Sum>198159.12</Sum>
+				</TtlDbtNtries>
+			</TxsSummry>
+			<Ntry>
+				<NtryRef>3322111122201506180000100001</NtryRef>
+				<Amt Ccy="SEK">185594.12</Amt>
+				<CdtDbtInd>DBIT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2015-06-18</Dt>
+				</BookgDt>
+				<ValDt>
+					<Dt>2015-06-18</Dt>
+				</ValDt>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>ICDT</Cd>
+							<SubFmlyCd>XBCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<Refs>
+							<MsgId>Message ID</MsgId>
+							<PmtInfId> Payment info ID 1</PmtInfId>
+							<EndToEndId>Own reference 1</EndToEndId>
+							<Prtry>
+								<Tp>OTHR</Tp>
+								<Ref>64500UTLI</Ref>
+							</Prtry>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="EUR">19961.4</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="EUR">19961.4</Amt>
+								<CcyXchg>
+									<SrcCcy>SEK</SrcCcy>
+									<TrgtCcy>EUR</TrgtCcy>
+									<UnitCcy>EUR</UnitCcy>
+									<XchgRate>9.2975</XchgRate>
+								</CcyXchg>
+							</TxAmt>
+							<CntrValAmt>
+								<Amt Ccy="SEK">185591.12</Amt>
+							</CntrValAmt>
+							<PrtryAmt>
+								<Tp>AOS</Tp>
+								<Amt Ccy="SEK">191629.44</Amt>
+							</PrtryAmt>
+						</AmtDtls>
+						<Chrgs>
+							<Amt Ccy="SEK">3</Amt>
+							<CdtDbtInd>DBIT</CdtDbtInd>
+							<Tp>
+								<Cd>COMM</Cd>
+							</Tp>
+							<Br>SHAR</Br>
+							<Pty>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</Pty>
+						</Chrgs>
+						<RltdPties>
+							<Cdtr>
+								<Nm>CREDITOR NAME</Nm>
+								<PstlAdr>
+									<TwnNm>CREDITOR TOWN</TwnNm>
+									<Ctry>SV</Ctry>
+									<AdrLine>BOX 1234</AdrLine>
+								</PstlAdr>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<IBAN>SE8990900000098765432100</IBAN>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>ABNASESS</BIC>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Ustrd>Message to beneficiary</Ustrd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+			<Ntry>
+				<NtryRef>3322111122201506180000100002</NtryRef>
+				<Amt Ccy="SEK">12565</Amt>
+				<CdtDbtInd>DBIT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2015-06-18</Dt>
+				</BookgDt>
+				<ValDt>
+					<Dt>2015-06-18</Dt>
+				</ValDt>
+				<AcctSvcrRef>FIL-E 20150125</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>ICDT</Cd>
+							<SubFmlyCd>DMCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<Btch>
+						<NbOfTxs>3</NbOfTxs>
+						<TtlAmt Ccy="SEK">12565</TtlAmt>
+						<CdtDbtInd>DBIT</CdtDbtInd>
+					</Btch>
+					<TxDtls>
+						<Refs>	
+							<MsgId>Message ID</MsgId>
+							<PmtInfId>Payment info ID 1</PmtInfId>
+							<EndToEndId>Own reference 21</EndToEndId>
+							<Prtry>
+								<Tp>OTHR</Tp>
+								<Ref>6000 FIL-E</Ref>
+							</Prtry>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">11367</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">11367</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<DbtrAcct>
+								<Id>
+									<Othr>
+										<Id>1234567</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</DbtrAcct>
+							<Cdtr>
+								<Nm>CREDITOR SVERIGE AB</Nm>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>9876543</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>9900</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>82063373</Nb>
+								</RfrdDocInf>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+					<TxDtls>
+						<Refs>
+							<MsgId>Message ID</MsgId>
+							<PmtInfId>Payment info ID 1</PmtInfId>
+							<EndToEndId>Own reference 22</EndToEndId>
+							<Prtry>
+								<Tp>OTHR</Tp>
+								<Ref>6000 FIL-E</Ref>
+							</Prtry>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">921</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">921</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<DbtrAcct>
+								<Id>
+									<Othr>
+										<Id>12234567</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</DbtrAcct>
+							<Cdtr>
+								<Nm>CREDITOR AB</Nm>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>1112222</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>9900</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>8200660705</Nb>
+								</RfrdDocInf>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+					<TxDtls>
+						<Refs>
+							<MsgId>Message ID</MsgId>
+							<PmtInfId>Payment info ID 1</PmtInfId>
+							<EndToEndId>Own refernce 23</EndToEndId>
+							<Prtry>
+								<Tp>OTHR</Tp>
+								<Ref>6201 FIL-E</Ref>
+							</Prtry>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="SEK">277</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="SEK">277</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<RltdPties>
+							<DbtrAcct>
+								<Id>
+									<Othr>
+										<Id>1234567</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</DbtrAcct>
+							<Cdtr>
+								<Nm>CREDITOR SE AB</Nm>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<Othr>
+										<Id>3332222</Id>
+										<SchmeNm>
+											<Prtry>BGNR</Prtry>
+										</SchmeNm>
+									</Othr>
+								</Id>
+							</CdtrAcct>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<ClrSysMmbId>
+										<ClrSysId>
+											<Cd>SESBA</Cd>
+										</ClrSysId>
+										<MmbId>9900</MmbId>
+									</ClrSysMmbId>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>44894-7133-196</Nb>
+								</RfrdDocInf>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+					</NtryDtls>
+				</Ntry>
+			</Stmt>
+	</BkToCstmrStmt>
+</Document>

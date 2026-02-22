@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<CstmrCdtTrfInitn>
+		<GrpHdr>
+			<MsgId>Example CB Payment IBAN/BIC</MsgId>
+			<CreDtTm>2021-05-30T00:00:00</CreDtTm>
+			<NbOfTxs>1</NbOfTxs>
+			<CtrlSum>250.00</CtrlSum>
+			<InitgPty>
+				<Id>
+					<OrgId>
+						<Othr>
+							<Id>123456789</Id>
+						</Othr>
+					</OrgId>
+				</Id>
+			</InitgPty>
+		</GrpHdr>
+		<PmtInf>
+			<PmtInfId>Example CB Payment IBAN/BIC</PmtInfId>
+			<PmtMtd>TRF</PmtMtd>
+			<ReqdExctnDt>2021-05-31</ReqdExctnDt>
+			<Dbtr>
+				<Nm>TESTCOMPANY</Nm>
+				<Id>
+					<OrgId>
+						<Othr>
+							<Id>123456789</Id>
+						</Othr>
+					</OrgId>
+				</Id>
+				<CtryOfRes>SE</CtryOfRes>
+			</Dbtr>
+			<DbtrAcct>
+				<Id>
+					<IBAN>SE9860000000000123456789</IBAN>
+				</Id>
+			</DbtrAcct>
+			<DbtrAgt>
+				<FinInstnId>
+					<BIC>HANDSESS</BIC>
+				</FinInstnId>
+			</DbtrAgt>
+			<ChrgBr>SHAR</ChrgBr>
+			<CdtTrfTxInf>
+				<PmtId>
+					<InstrId>Example CB Payment IBAN/BIC</InstrId>
+					<EndToEndId>Referens</EndToEndId>
+				</PmtId>
+				<PmtTpInf>
+					<SvcLvl>
+						<Cd>NURG</Cd>
+					</SvcLvl>
+					<CtgyPurp>
+						<Cd>SUPP</Cd>
+					</CtgyPurp>
+				</PmtTpInf>
+				<Amt>
+					<InstdAmt Ccy="NOK">250.00</InstdAmt>
+				</Amt>
+				<CdtrAgt>
+					<FinInstnId>
+						<BIC>HANDNOKK</BIC>
+					</FinInstnId>
+				</CdtrAgt>
+				<Cdtr>
+					<Nm>TESTCOMPANY</Nm>
+					<PstlAdr>
+						<StrtNm>TESTSTREET 1</StrtNm>
+						<PstCd>12345</PstCd>
+						<TwnNm>TESTTOWN</TwnNm>
+						<Ctry>NO</Ctry>
+					</PstlAdr>
+				</Cdtr>
+				<CdtrAcct>
+					<Id>
+						<IBAN>NO1234567890123</IBAN>
+					</Id>
+				</CdtrAcct>
+				<RgltryRptg>
+					<Dtls>
+						<Cd>101</Cd>
+					</Dtls>
+				</RgltryRptg>
+				<RmtInf>
+					<Strd>
+						<RfrdDocInf>
+							<Tp>
+								<CdOrPrtry>
+									<Cd>CINV</Cd>
+								</CdOrPrtry>
+							</Tp>
+							<Nb>12345</Nb>
+						</RfrdDocInf>
+						<RfrdDocAmt>
+							<RmtdAmt Ccy="NOK">250.00</RmtdAmt>
+						</RfrdDocAmt>
+					</Strd>
+				</RmtInf>
+			</CdtTrfTxInf>
+		</PmtInf>
+	</CstmrCdtTrfInitn>
+</Document>

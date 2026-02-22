@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03" >
+	<CstmrPmtStsRpt>
+		<GrpHdr>
+			<MsgId>16031611435500101</MsgId>
+			<CreDtTm>2016-03-16T11:43:55</CreDtTm>
+			<InitgPty>
+				<Id>
+					<OrgId>
+						<BICOrBEI>HANDSESS</BICOrBEI>
+					</OrgId>
+				</Id>
+			</InitgPty>
+		</GrpHdr>
+		<OrgnlGrpInfAndSts>
+			<OrgnlMsgId>201603161125FILA</OrgnlMsgId>
+			<OrgnlMsgNmId>pain.001.001.03</OrgnlMsgNmId>
+			<OrgnlCreDtTm>2013-06-04T13:46:00</OrgnlCreDtTm>
+			<OrgnlNbOfTxs>5</OrgnlNbOfTxs>
+			<OrgnlCtrlSum>232</OrgnlCtrlSum>
+			<GrpSts>PART</GrpSts>
+			<NbOfTxsPerSts>
+				<DtldNbOfTxs>1</DtldNbOfTxs>
+				<DtldSts>RJCT</DtldSts>
+			</NbOfTxsPerSts>
+		</OrgnlGrpInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC26</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000179</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 5</OrgnlEndToEndId>
+				<TxSts>RJCT</TxSts>
+				<StsRsnInf>
+					<Orgtr>
+						<Id>
+							<OrgId>
+								<BICOrBEI>HANDSESS</BICOrBEI>
+							</OrgId>
+						</Id>
+					</Orgtr>
+					<Rsn>
+						<Cd>AC02</Cd>
+					</Rsn>
+					<AddtlInf>Incorrect debit account number</AddtlInf>
+				</StsRsnInf>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="LVL">134.22</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<IBAN>LV09HAND0008300000223987</IBAN>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDLV20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<BIC>HANDLV20</BIC>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor 5</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<IBAN>LV35HAND0008300000919</IBAN>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+	</CstmrPmtStsRpt>
+</Document>

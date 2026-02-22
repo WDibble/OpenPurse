@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:iso:std:iso:20022:tech:xsd:pain.002.001.03" >
+	<CstmrPmtStsRpt>
+		<GrpHdr>
+			<MsgId>16031611435500101</MsgId>
+			<CreDtTm>2016-03-16T11:43:55</CreDtTm>
+			<InitgPty>
+				<Id>
+					<OrgId>
+						<BICOrBEI>HANDSESS</BICOrBEI>
+					</OrgId>
+				</Id>
+			</InitgPty>
+		</GrpHdr>
+		<OrgnlGrpInfAndSts>
+			<OrgnlMsgId>201603161125FILA</OrgnlMsgId>
+			<OrgnlMsgNmId>pain.001.001.03</OrgnlMsgNmId>
+			<OrgnlCreDtTm>2013-06-04T13:46:00</OrgnlCreDtTm>
+			<OrgnlNbOfTxs>5</OrgnlNbOfTxs>
+			<OrgnlCtrlSum>232</OrgnlCtrlSum>
+			<GrpSts>PART</GrpSts>
+			<NbOfTxsPerSts>
+				<DtldNbOfTxs>4</DtldNbOfTxs>
+				<DtldSts>ACCP</DtldSts>
+			</NbOfTxsPerSts>
+			<NbOfTxsPerSts>
+				<DtldNbOfTxs>1</DtldNbOfTxs>
+				<DtldSts>RJCT</DtldSts>
+			</NbOfTxsPerSts>
+		</OrgnlGrpInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC01</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000008</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 1</OrgnlEndToEndId>
+				<TxSts>ACCP</TxSts>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="GBP">25.99</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficairy</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<Othr>
+								<Id>44444001</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDGB20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<Cdtr>
+						<Nm>Creditor 1</Nm>
+					</Cdtr>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC02</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000008</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 2</OrgnlEndToEndId>
+				<TxSts>ACCP</TxSts>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="GBP">19.99</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<Othr>
+								<Id>44444001</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDGB20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<ClrSysId>
+									<Cd>GBDSC</Cd>
+								</ClrSysId>
+								<MmbId>203253</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor 2</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<Othr>
+								<Id>11423060</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC03</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000008</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 3</OrgnlEndToEndId>
+				<TxSts>ACCP</TxSts>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="GBP">29.99</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<Othr>
+								<Id>44444001</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDGB20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<ClrSysId>
+									<Cd>GBDSC</Cd>
+								</ClrSysId>
+								<MmbId>203253</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor 3</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<IBAN>GB29NWBK60161331926819</IBAN>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC04</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000008</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 4</OrgnlEndToEndId>
+				<TxSts>ACCP</TxSts>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="GBP">21.63</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<Othr>
+								<Id>44444001</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDGB20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<ClrSysMmbId>
+								<ClrSysId>
+									<Cd>GBDSC</Cd>
+								</ClrSysId>
+								<MmbId>203253</MmbId>
+							</ClrSysMmbId>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor 4</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<Othr>
+								<Id>11423060</Id>
+								<SchmeNm>
+									<Cd>BBAN</Cd>
+								</SchmeNm>
+							</Othr>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+		<OrgnlPmtInfAndSts>
+			<OrgnlPmtInfId>FilA20160212TC26</OrgnlPmtInfId>
+			<TxInfAndSts>
+				<OrgnlInstrId>0000000179</OrgnlInstrId>
+				<OrgnlEndToEndId>Own reference 5</OrgnlEndToEndId>
+				<TxSts>RJCT</TxSts>
+				<StsRsnInf>
+					<Orgtr>
+						<Id>
+							<OrgId>
+								<BICOrBEI>HANDSESS</BICOrBEI>
+							</OrgId>
+						</Id>
+					</Orgtr>
+					<Rsn>
+						<Cd>AC02</Cd>
+					</Rsn>
+					<AddtlInf>Incorrect debit account number</AddtlInf>
+				</StsRsnInf>
+				<OrgnlTxRef>
+					<Amt>
+						<InstdAmt Ccy="LVL">134.22</InstdAmt>
+					</Amt>
+					<ReqdExctnDt>2016-03-16</ReqdExctnDt>
+					<RmtInf>
+						<Ustrd>Message to beneficiary</Ustrd>
+					</RmtInf>
+					<Dbtr>
+						<Nm>Debtor AB</Nm>
+					</Dbtr>
+					<DbtrAcct>
+						<Id>
+							<IBAN>LV09HAND0008300000223987</IBAN>
+						</Id>
+					</DbtrAcct>
+					<DbtrAgt>
+						<FinInstnId>
+							<BIC>HANDLV20</BIC>
+						</FinInstnId>
+					</DbtrAgt>
+					<CdtrAgt>
+						<FinInstnId>
+							<BIC>HANDLV20</BIC>
+						</FinInstnId>
+					</CdtrAgt>
+					<Cdtr>
+						<Nm>Creditor 5</Nm>
+					</Cdtr>
+					<CdtrAcct>
+						<Id>
+							<IBAN>LV35HAND0008300000919</IBAN>
+						</Id>
+					</CdtrAcct>
+				</OrgnlTxRef>
+			</TxInfAndSts>
+		</OrgnlPmtInfAndSts>
+	</CstmrPmtStsRpt>
+</Document>

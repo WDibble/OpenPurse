@@ -1,0 +1,176 @@
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.054.001.02" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<BkToCstmrDbtCdtNtfctn>
+		<GrpHdr>
+			<MsgId>Message ID</MsgId>
+			<CreDtTm>2012-10-24T12:07:41</CreDtTm>
+			<AddtlInf>/DEBT/</AddtlInf>
+		</GrpHdr>
+		<Ntfctn>
+			<Id>Notification ID</Id>
+			<CreDtTm>2012-10-24T12:07:41</CreDtTm>
+			<Acct>
+				<Id>
+					<Othr>
+						<Id>123456789</Id>
+						<SchmeNm>
+							<Cd>BBAN</Cd>
+						</SchmeNm>
+					</Othr>
+				</Id>
+				<Ownr>
+					<Id>
+						<OrgId>
+							<Othr>
+								<Id>5567561234</Id>
+								<SchmeNm>
+									<Cd>BANK</Cd>
+								</SchmeNm>
+							</Othr>
+						</OrgId>
+					</Id>
+				</Ownr>
+				<Svcr>
+					<FinInstnId>
+						<BIC>HANDSESS</BIC>
+						<ClrSysMmbId>
+						<ClrSysId>
+							<Cd>SESBA</Cd>
+						</ClrSysId>
+						<MmbId>6000</MmbId>
+					</ClrSysMmbId>
+					</FinInstnId>
+				</Svcr>
+			</Acct>
+			<TxsSummry>
+				<TtlNtries>
+					<NbOfNtries>1</NbOfNtries>
+					<Sum>147.5</Sum>
+					<CdtDbtInd>DBIT</CdtDbtInd>
+				</TtlNtries>
+			</TxsSummry>
+			<Ntry>
+				<NtryRef>Entry reference</NtryRef>
+				<Amt Ccy="EUR">147.5</Amt>
+				<CdtDbtInd>DBIT</CdtDbtInd>
+				<Sts>BOOK</Sts>
+				<BookgDt>
+					<Dt>2012-12-22</Dt>
+				</BookgDt>
+				<AcctSvcrRef>Account Servicer Reference</AcctSvcrRef>
+				<BkTxCd>
+					<Domn>
+						<Cd>PMNT</Cd>
+						<Fmly>
+							<Cd>ICDT</Cd>
+							<SubFmlyCd>XBCT</SubFmlyCd>
+						</Fmly>
+					</Domn>
+				</BkTxCd>
+				<NtryDtls>
+					<TxDtls>
+						<Refs>
+							<MsgId>Message ID from</MsgId>
+							<PmtInfId>Payment Information</PmtInfId>
+							<EndToEndId>Debtor´s own reference</EndToEndId>
+						</Refs>
+						<AmtDtls>
+							<InstdAmt>
+								<Amt Ccy="EUR">775.2</Amt>
+							</InstdAmt>
+							<TxAmt>
+								<Amt Ccy="EUR">775.2</Amt>
+							</TxAmt>
+						</AmtDtls>
+						<Chrgs>
+							<Amt Ccy="EUR">11.5</Amt>
+							<CdtDbtInd>DBIT</CdtDbtInd>
+							<Tp>
+								<Prtry><Id>SCOM</Id></Prtry>
+							</Tp>
+							<Br>SHAR</Br>
+							<Pty>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</Pty>
+						</Chrgs>
+						<RltdPties>
+							<Dbtr>
+								<Nm>Debtor Name</Nm>
+							</Dbtr>
+							<Cdtr>
+								<Nm>Creditor Name</Nm>
+								<PstlAdr>
+									<StrtNm>Street Name</StrtNm>
+									<TwnNm>Town Name</TwnNm>
+									<Ctry>FI</Ctry>
+								</PstlAdr>
+							</Cdtr>
+							<CdtrAcct>
+								<Id>
+									<IBAN>FI0331310000556455</IBAN>
+								</Id>
+							</CdtrAcct>
+							<UltmtCdtr>
+								<Nm>Ultimate Creditor Name</Nm>
+								<Id>
+									<PrvtId>
+										<Othr>
+											<Id>Ultimate Creditor ID</Id>
+											<SchmeNm>
+												<Cd>NIDN</Cd>
+											</SchmeNm>
+										</Othr>
+									</PrvtId>
+								</Id>
+							</UltmtCdtr>
+						</RltdPties>
+						<RltdAgts>
+							<DbtrAgt>
+								<FinInstnId>
+									<BIC>HANDSESS</BIC>
+								</FinInstnId>
+							</DbtrAgt>
+							<CdtrAgt>
+								<FinInstnId>
+									<BIC>HANDFIHH</BIC>
+								</FinInstnId>
+							</CdtrAgt>
+						</RltdAgts>
+						<Purp>
+							<Cd>9870</Cd>
+						</Purp>
+						<RmtInf>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Invoice number 123</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="EUR">550.1</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+							<Strd>
+								<RfrdDocInf>
+									<Tp>
+										<CdOrPrtry>
+											<Cd>CINV</Cd>
+										</CdOrPrtry>
+									</Tp>
+									<Nb>Invoice number 124</Nb>
+								</RfrdDocInf>
+								<RfrdDocAmt>
+									<RmtdAmt Ccy="EUR">225.1</RmtdAmt>
+								</RfrdDocAmt>
+							</Strd>
+						</RmtInf>
+					</TxDtls>
+				</NtryDtls>
+			</Ntry>
+		</Ntfctn>
+	</BkToCstmrDbtCdtNtfctn>
+</Document>
