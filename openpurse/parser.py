@@ -10,7 +10,8 @@ class OpenPurseParser:
     Dynamically maps supported XSD schemas from the docs/ folder.
     """
     
-    _SUPPORTED_NAMESPACES = set()
+    _SUPPORTED_NAMESPACES = set() # Legacy backwards compatibility
+    _SCHEMA_REGISTRY = {} # New mapping of targetNamespace -> filepath
     _SCHEMAS_LOADED = False
 
     @classmethod
@@ -32,6 +33,7 @@ class OpenPurseParser:
                     if 'targetNamespace="' in content:
                         ns = content.split('targetNamespace="')[1].split('"')[0]
                         cls._SUPPORTED_NAMESPACES.add(ns)
+                        cls._SCHEMA_REGISTRY[ns] = os.path.abspath(xsd)
             except Exception:
                 pass
         
@@ -60,6 +62,45 @@ class OpenPurseParser:
                     
             except (etree.XMLSyntaxError, ValueError, TypeError):
                 self.tree = None
+
+    def validate_schema(self) -> 'ValidationReport':
+        """
+        Performs strict structural validation of the initialized XML message against 
+        its authoritative XSD schema registered from the docs/ directory.
+        
+        Returns:
+            ValidationReport: A report indicating `is_valid` status and a list of specific XSD validation errors.
+        """
+        from openpurse.models import ValidationReport
+        
+        if self.is_mt:
+            return ValidationReport(is_valid=False, errors=["Schema validation is not applicable to SWIFT MT block formats."])
+            
+        if self.tree is None:
+            return ValidationReport(is_valid=False, errors=["Empty or fundamentally malformed XML document. Cannot determine namespace."])
+            
+        if not self.default_ns:
+            return ValidationReport(is_valid=False, errors=["Document is missing a defined targetNamespace."])
+            
+        xsd_path = self._SCHEMA_REGISTRY.get(self.default_ns)
+        if not xsd_path:
+            return ValidationReport(is_valid=False, errors=[f"Unsupported namespace '{self.default_ns}'. No matching XSD found in registry."])
+            
+        try:
+            with open(xsd_path, 'rb') as f:
+                schema_root = etree.XML(f.read())
+                schema = etree.XMLSchema(schema_root)
+                
+            if schema.validate(self.tree):
+                return ValidationReport(is_valid=True, errors=[])
+            else:
+                errors = [str(err) for err in schema.error_log]
+                return ValidationReport(is_valid=False, errors=errors)
+                
+        except etree.XMLSchemaParseError as e:
+            return ValidationReport(is_valid=False, errors=[f"Internal Error: Failed to parse registered XSD '{xsd_path}': {e}"])
+        except Exception as e:
+            return ValidationReport(is_valid=False, errors=[f"Unexpected error validating schema: {e}"])
 
     def _get_text_from(self, element, xpath_expr: str) -> Optional[str]:
         if element is None:
@@ -147,6 +188,12 @@ class OpenPurseParser:
             b2_match2 = re.search(r'\{2:[IO][0-9]{3}([A-Z0-9]{8,14})', text)
             if b2_match2: receiver = b2_match2.group(1)[:12]
             
+        # Block 3: {3:{121:[UUIDv4 UETR]}}
+        uetr = None
+        b3_match = re.search(r'\{3:.*\{121:(.*?)\}.*?\}', text)
+        if b3_match:
+            uetr = b3_match.group(1).strip()
+            
         # 2. Body parsing
         msg_id = extract_tag(':20:')
         
@@ -173,6 +220,7 @@ class OpenPurseParser:
         return PaymentMessage(
             message_id=msg_id,
             end_to_end_id=None,
+            uetr=uetr,
             amount=amount,
             currency=currency,
             sender_bic=sender,
@@ -200,6 +248,7 @@ class OpenPurseParser:
         return PaymentMessage(
             message_id=self._get_text('//ns:MsgId/text()'),
             end_to_end_id=self._get_text('//ns:EndToEndId/text()'),
+            uetr=self._get_text('//ns:UETR/text()'),
             amount=self._get_text('//*[@Ccy][1]/text()'),
             currency=self._get_text('//*[@Ccy][1]/@Ccy'),
             sender_bic=self._get_text('//ns:InstgAgt//ns:BICFI/text() | //ns:InitgPty//ns:AnyBIC/text() | //ns:InstgAgt//ns:Othr/ns:Id/text()'),

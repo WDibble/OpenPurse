@@ -49,6 +49,8 @@ class PaymentMessage:
             The primary account identifier (like IBAN or BBAN) for the debtor.
         creditor_account (Optional[str]):
             The primary account identifier (like IBAN or BBAN) for the creditor.
+        uetr (Optional[str]):
+            The Unique End-to-End Transaction Reference (UUIDv4) tracking the payment on SWIFT gpi.
     """
     message_id: Optional[str] = None
     end_to_end_id: Optional[str] = None
@@ -62,6 +64,7 @@ class PaymentMessage:
     creditor_address: Optional[PostalAddress] = None
     debtor_account: Optional[str] = None
     creditor_account: Optional[str] = None
+    uetr: Optional[str] = None
     
     def to_dict(self) -> dict:
         """

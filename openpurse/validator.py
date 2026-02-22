@@ -10,6 +10,21 @@ class Validator:
     _bic_pattern = re.compile(r"^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$")
     _iban_clean_pattern = re.compile(r'[^A-Z0-9]')
     _iban_format_pattern = re.compile(r"^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$")
+    _uuid4_pattern = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$", re.I)
+
+    @staticmethod
+    def _validate_uetr(uetr: str) -> Optional[str]:
+        """
+        Validates that a SWIFT gpi UETR matches the strict UUIDv4 specification.
+        """
+        if not uetr:
+            return None
+            
+        clean_uetr = uetr.strip()
+        if not Validator._uuid4_pattern.match(clean_uetr):
+            return f"Invalid UETR format: '{clean_uetr}'. Must be a valid UUIDv4 string."
+            
+        return None
 
     @staticmethod
     def _validate_bic(bic: str) -> Optional[str]:
@@ -70,6 +85,10 @@ class Validator:
         receiver_err = Validator._validate_bic(message.receiver_bic)
         if receiver_err:
             errors.append(f"[Receiver] {receiver_err}")
+
+        uetr_err = Validator._validate_uetr(message.uetr)
+        if uetr_err:
+            errors.append(f"[UETR] {uetr_err}")
 
         # 2. Dynamic specific attribute IBAN extraction checks
         # Pacs008, Pain001, Pain008, etc. inherently provide debtor/creditor explicit elements if loaded fully

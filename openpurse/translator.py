@@ -1,5 +1,6 @@
 from openpurse.models import PaymentMessage
 from datetime import datetime
+import uuid
 
 class Translator:
     """
@@ -25,6 +26,10 @@ class Translator:
         
         # Block 2: {2:I[Type][Receiver 12]N}
         block_2 = f"{{2:I{mt_type}{receiver}N}}"
+        
+        # Block 3: {3:{121:[UUIDv4 UETR]}}
+        msg_uetr = message.uetr or str(uuid.uuid4())
+        block_3 = f"{{3:{{121:{msg_uetr}}}}}"
         
         # Block 4: Body
         msg_id = message.message_id or "NONREF"
@@ -115,7 +120,7 @@ class Translator:
                 f"-}}"
             )
         
-        return f"{block_1}{block_2}{block_4}".encode('utf-8')
+        return f"{block_1}{block_2}{block_3}{block_4}".encode('utf-8')
 
     @staticmethod
     def to_mx(message: PaymentMessage, mx_type: str = "pacs.008") -> bytes:
@@ -128,6 +133,10 @@ class Translator:
         # Common fields
         msg_id = message.message_id or "NONREF"
         e2e = message.end_to_end_id or msg_id
+        
+        # UETR is strongly associated with the E2E block in XML (often right beside it, e.g. <UETR> UUID </UETR>)
+        uetr = message.uetr or str(uuid.uuid4())
+        
         amt = message.amount or "0.00"
         curr = message.currency or "USD"
         sender = message.sender_bic or "UNKNOWN"
@@ -166,7 +175,10 @@ class Translator:
             <InstdAgt><FinInstnId><BICFI>{receiver}</BICFI></FinInstnId></InstdAgt>
         </GrpHdr>
         <CdtTrfTxInf>
-            <PmtId><EndToEndId>{e2e}</EndToEndId></PmtId>
+            <PmtId>
+                <EndToEndId>{e2e}</EndToEndId>
+                <UETR>{uetr}</UETR>
+            </PmtId>
             <IntrBkSttlmAmt Ccy="{curr}">{amt}</IntrBkSttlmAmt>
             <Dbtr><Nm>{debtor}</Nm>{dbtr_addr_xml}</Dbtr>
             <Cdtr><Nm>{creditor}</Nm>{cdtr_addr_xml}</Cdtr>
@@ -185,7 +197,10 @@ class Translator:
             <InstdAgt><FinInstnId><BICFI>{receiver}</BICFI></FinInstnId></InstdAgt>
         </GrpHdr>
         <CdtTrfTxInf>
-            <PmtId><EndToEndId>{e2e}</EndToEndId></PmtId>
+            <PmtId>
+                <EndToEndId>{e2e}</EndToEndId>
+                <UETR>{uetr}</UETR>
+            </PmtId>
             <IntrBkSttlmAmt Ccy="{curr}">{amt}</IntrBkSttlmAmt>
             <Dbtr><FinInstnId><BICFI>{sender}</BICFI></FinInstnId></Dbtr>
             <Cdtr><FinInstnId><BICFI>{receiver}</BICFI></FinInstnId></Cdtr>
