@@ -111,6 +111,49 @@ class Validator:
         return None
 
     @staticmethod
+    def _validate_mt_bic(bic: str, block_name: str) -> Optional[str]:
+        """
+        Validates BIC format specifically for SWIFT MT headers (12 chars expected in blocks).
+        """
+        if not bic or len(bic) < 8:
+            return f"Invalid BIC in {block_name}: too short."
+        # Standard BIC is 8 or 11. headers often have 'X' padding or branch codes.
+        if not Validator._bic_pattern.match(bic[:8] + (bic[8:11] if len(bic) >= 11 else "")):
+            return f"Invalid BIC format in {block_name}: '{bic}'."
+        return None
+
+    @staticmethod
+    def _validate_mt_32a(content: str) -> Optional[str]:
+        """
+        Validates Field 32A: :32A:YYMMDDCurrencyAmount
+        """
+        if len(content) < 10:  # 6 (date) + 3 (ccy) + 1 (min amt)
+            return "Field 32A too short."
+        
+        date_part = content[:6]
+        ccy_part = content[6:9]
+        amount_part = content[9:].replace(",", ".")
+
+        # Date check
+        try:
+            from datetime import datetime
+            datetime.strptime(date_part, "%y%m%d")
+        except ValueError:
+            return f"Invalid date in Field 32A: '{date_part}'. Expected YYMMDD."
+
+        # Currency check
+        if not (len(ccy_part) == 3 and ccy_part.isalpha()):
+            return f"Invalid currency in Field 32A: '{ccy_part}'."
+
+        # Amount check
+        try:
+            float(amount_part)
+        except ValueError:
+            return f"Invalid amount format in Field 32A: '{amount_part}'."
+
+        return None
+
+    @staticmethod
     def validate_schema(raw_data: bytes) -> ValidationReport:
         """
         Executes a deep structural validation against the raw byte string.
@@ -129,31 +172,41 @@ class Validator:
         # 2. SWIFT MT Routing
         if text_data.startswith("{1:"):
             errors = []
-            import re
-
+            
             # Block 1 Check: Basic Header {1:F01[BIC12]xxxx......}
-            if not re.search(r"\{1:[A-Z0-9]{15,}\}", text_data):
-                errors.append("Invalid or missing Block 1 (Basic Header).")
+            b1_match = re.search(r"\{1:([A-Z0-9]{3})([A-Z0-9]{12})([0-9]{10})\}", text_data)
+            if not b1_match:
+                errors.append("Invalid or missing Block 1 (Basic Header) structure.")
+            else:
+                bic = b1_match.group(2)[:11].strip()
+                err = Validator._validate_mt_bic(bic, "Block 1")
+                if err: errors.append(err)
 
             # Block 2 Check: Application Header {2:I103[BIC12]XXXXN...}
-            if not re.search(r"\{2:[IO][0-9]{3}[A-Z0-9]{10,}\}", text_data):
-                errors.append("Invalid or missing Block 2 (Application Header).")
+            b2_match = re.search(r"\{2:([IO])([0-9]{3})([A-Z0-9]{12})([A-Z0-9]*)?\}", text_data)
+            if not b2_match:
+                errors.append("Invalid or missing Block 2 (Application Header) structure.")
+            else:
+                bic = b2_match.group(3)[:11].strip()
+                err = Validator._validate_mt_bic(bic, "Block 2")
+                if err: errors.append(err)
 
-            # Block 4 Check: Message Body {4:\n:[2-3c]:...\n-}
-            # Basic structural verification: must contain {4: and end with -}
+            # Block 4 Check: Message Body
             block4_match = re.search(r"\{4:\r?\n(.+?)\r?\n-\}", text_data, re.DOTALL)
             if not block4_match:
                 errors.append("Invalid or missing Block 4 (Message Body). Must cleanly terminate with '-}'.")
             else:
                 body = block4_match.group(1)
-                # Verify standard MT tag structures (e.g. :20:IDENTIFIER)
-                if not re.search(r"^:[0-9]{2}[a-zA-Z]?:", body, re.MULTILINE):
-                    errors.append("Block 4 body does not contain valid SWIFT MT tags.")
-
-            # Block 5 Check (Optional): Trailers {5:{MAC:xxxx}{CHK:xxxx}}
-            if "{5:" in text_data:
-                if not re.search(r"\{5:(\{.*?\})+\}", text_data):
-                    errors.append("Malformed Block 5 (Trailers/Checksums).")
+                # Field 20 is mandatory in almost all messages
+                if ":20:" not in body:
+                    errors.append("Mandatory Field :20: (Sender's Reference) missing in Block 4.")
+                
+                # Check 32A if present
+                if ":32A:" in body:
+                    match_32a = re.search(r":32A:([A-Z0-9,.]+)", body)
+                    if match_32a:
+                        err = Validator._validate_mt_32a(match_32a.group(1))
+                        if err: errors.append(err)
 
             if errors:
                 return ValidationReport(is_valid=False, errors=errors)
