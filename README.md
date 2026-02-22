@@ -120,35 +120,43 @@ Whether you call `.parse()` (which yields a `PaymentMessage` dataclass instance)
 - `receiver_bic`: InstdAgt/BICFI (XML) or Header Block 2 (MT)
 - `debtor_name`: Dbtr/Nm (XML) or :50K: tags (MT)
 - `creditor_name`: Cdtr/Nm (XML) or :59: tags (MT)
+- `debtor_account`: IBAN or primary account ID
+- `creditor_account`: IBAN or primary account ID
+- `debtor_address`: Structured `PostalAddress` object
+- `creditor_address`: Structured `PostalAddress` object
 
 Missing or optional fields gracefully return `None`.
 
-## OpenAPI & JSON Schema Export
+## Intelligent Pre-Validation
 
-OpenPurse allows you to export its standard settlement models as OpenAPI 3.0 or JSON Schema definitions. This is ideal for developers building REST APIs that need to expose these financial models.
-
-### Via CLI
-
-Use the provided export script to generate a schema file:
-
-```bash
-# Generate JSON (default)
-./scripts/export_schema.py --output openapi.json
-
-# Generate YAML (requires PyYAML)
-./scripts/export_schema.py --format yaml --output openapi.yaml
-```
-
-### Via Python API
+OpenPurse includes an offline validation engine to catch errors (malformed BICs, invalid IBAN checksums) before they hit clearing systems.
 
 ```python
-from openpurse.exporter import Exporter
+from openpurse.validator import Validator
 
-# Get the spec as a dictionary
-spec = Exporter.to_openapi()
+# Validate a parsed message
+report = Validator.validate(msg)
 
-# Or export directly to a file
-Exporter.export_json("schema.json")
+if not report.is_valid:
+    for err in report.errors:
+        print(f"Validation Failure: {err}")
+```
+
+## PII Anonymizer
+
+Scrub sensitive Personally Identifiable Information (Names, Addresses, Accounts) from production data while keeping the message valid for testing.
+
+```python
+from openpurse.anonymizer import Anonymizer
+
+anonymizer = Anonymizer(salt="my-session-salt")
+
+# Anonymize XML or MT bytes
+safe_xml = anonymizer.anonymize_xml(raw_xml)
+safe_mt = anonymizer.anonymize_mt(raw_mt)
+
+# Note: IBANs are masked but their checksums are RECALCULATED
+# so they remain "valid" according to the Validator.
 ```
 
 ## Reconciliation Engine
@@ -158,19 +166,14 @@ OpenPurse can link disjointed financial messages (e.g., an initiation, a status 
 ```python
 from openpurse.reconciler import Reconciler
 
-# List of messages parsed from different files
-all_messages = [initiation_msg, status_msg, notification_msg]
-
-# Find all related messages for a specific payment
-related = Reconciler.find_matches(initiation_msg, all_messages)
+# Find related messages with optional fuzzy matching for fees (1% threshold)
+related = Reconciler.find_matches(initiation_msg, all_messages, fuzzy_amount=True)
 
 # Build a chronological trace starting from a seed message
 timeline = Reconciler.trace_lifecycle(initiation_msg, all_messages)
-for msg in timeline:
-    print(f"[{msg.__class__.__name__}] ID: {msg.message_id}")
 ```
 
-## Tests
+## OpenAPI & JSON Schema Export
 
 Testing is done using `pytest`. Currently, coverage includes mock definitions for basic `pacs` and `camt` schemas, validating graceful degradation when schemas don't provide creditor/debtor names.
 
