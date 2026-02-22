@@ -47,23 +47,34 @@ class OpenPurseParser:
         if cls._SCHEMAS_LOADED:
             return
 
-        # In a real package, package data would be used, but relative to this codebase for now:
+        # 1. Search in local app schemas (preferred for distribution)
+        internal_schemas = os.path.join(os.path.dirname(__file__), "schemas")
+        
+        # 2. Search in docs directory (legacy/development location)
         docs_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs")
         if not os.path.exists(docs_dir):
             docs_dir = "docs/"  # fallback
 
-        xsds = glob.glob(f"{docs_dir}/**/*.xsd", recursive=True)
-        for xsd in xsds:
-            try:
-                # We use string manipulation to find targetNamespace to avoid full parsing overhead if large
-                with open(xsd, "r", encoding="utf-8") as f:
-                    content = f.read(1024)
-                    if 'targetNamespace="' in content:
-                        ns = content.split('targetNamespace="')[1].split('"')[0]
-                        cls._SUPPORTED_NAMESPACES.add(ns)
-                        cls._SCHEMA_REGISTRY[ns] = os.path.abspath(xsd)
-            except Exception:
-                pass
+        all_dirs = [internal_schemas, docs_dir]
+        
+        for base_dir in all_dirs:
+            if not os.path.exists(base_dir):
+                continue
+                
+            xsds = glob.glob(f"{base_dir}/**/*.xsd", recursive=True)
+            for xsd in xsds:
+                try:
+                    # We use string manipulation to find targetNamespace to avoid full parsing overhead if large
+                    with open(xsd, "r", encoding="utf-8") as f:
+                        # Read more to ensure we catch targetNamespace even in large headers
+                        content = f.read(2048)
+                        if 'targetNamespace="' in content:
+                            ns = content.split('targetNamespace="')[1].split('"')[0]
+                            cls._SUPPORTED_NAMESPACES.add(ns)
+                            # internal schemas override docs (if duplicates exist)
+                            cls._SCHEMA_REGISTRY[ns] = os.path.abspath(xsd)
+                except Exception:
+                    pass
 
         cls._SCHEMAS_LOADED = True
 
