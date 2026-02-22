@@ -26,6 +26,8 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+[project.scripts]
+openpurse = "openpurse.cli:main"
 
 [project.optional-dependencies]
 dev = [

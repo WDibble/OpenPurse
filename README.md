@@ -156,14 +156,55 @@ if not logic_report.is_valid:
 
 ---
 
-## 🔍 Exporter: Automated API Specs
+### 5. High-Performance Streaming Parser
 
-Instantly sync your internal financial models with your REST API documentation. `Exporter` generates OpenAPI 3.0 / JSON Schema definitions directly from the codebase.
+As financial institutions often deal with very large (GB+) batch XML files containing thousands of transactions, loading a full DOM tree is memory-prohibitive. Use the `StreamingParser` for chunked, memory-efficient processing.
+
+```python
+from openpurse.streaming import StreamingParser
+
+# Iterate through transactions in a 5GB file without loading it all into RAM
+for msg in StreamingParser("batch_payments.xml").iter_messages():
+    process_payment(msg)
+```
+
+### 6. Database Persistence
+
+OpenPurse includes a built-in SQLAlchemy persistence layer to save financial records directly to your relational database.
+
+```python
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from openpurse.database.repository import MessageRepository
+
+engine = create_engine("sqlite:///payments.db")
+Session = sessionmaker(bind=engine)
+
+with Session() as session:
+    repo = MessageRepository(session)
+    repo.save(parsed_msg) # Persists polymorphic record (pacs.008, pain.001, etc.)
+```
+
+---
+
+## 💻 Command Line Interface (CLI)
+
+OpenPurse provides a powerful standalone utility for the terminal.
 
 ```bash
-# Generate openapi.json for your web team
-python3 scripts/export_schema.py --output docs/api_spec.json
+# Validate a file's structure and data quality
+openpurse validate incoming_payment.xml
+
+# Parse and output a JSON summary
+openpurse parse mt103_message.txt
+
+# Persist a message directly to a database
+openpurse persist message.xml --db-url sqlite:///production.db
 ```
+
+---
+
+## 🔍 Exporter: Automated API Specs
 
 ---
 
