@@ -97,6 +97,60 @@ class Validator:
         return None
 
     @staticmethod
+    def validate_schema(raw_data: bytes) -> ValidationReport:
+        """
+        Executes a deep structural validation against the raw byte string.
+        For XML (ISO 20022), validates against rigorous XSD definitions.
+        For SWIFT MT, validates strictly against Block 1-5 structural rules.
+        """
+        from openpurse.parser import OpenPurseParser
+
+        text_data = raw_data.decode("utf-8", errors="ignore").strip()
+
+        # 1. XML Routing
+        if text_data.startswith("<?xml") or text_data.startswith("<"):
+            parser = OpenPurseParser(raw_data)
+            return parser.validate_schema()
+
+        # 2. SWIFT MT Routing
+        if text_data.startswith("{1:"):
+            errors = []
+            import re
+
+            # Block 1 Check: Basic Header {1:F01[BIC12]xxxx......}
+            if not re.search(r"\{1:[A-Z0-9]{15,}\}", text_data):
+                errors.append("Invalid or missing Block 1 (Basic Header).")
+
+            # Block 2 Check: Application Header {2:I103[BIC12]XXXXN...}
+            if not re.search(r"\{2:[IO][0-9]{3}[A-Z0-9]{10,}\}", text_data):
+                errors.append("Invalid or missing Block 2 (Application Header).")
+
+            # Block 4 Check: Message Body {4:\n:[2-3c]:...\n-}
+            # Basic structural verification: must contain {4: and end with -}
+            block4_match = re.search(r"\{4:\r?\n(.+?)\r?\n-\}", text_data, re.DOTALL)
+            if not block4_match:
+                errors.append("Invalid or missing Block 4 (Message Body). Must cleanly terminate with '-}'.")
+            else:
+                body = block4_match.group(1)
+                # Verify standard MT tag structures (e.g. :20:IDENTIFIER)
+                if not re.search(r"^:[0-9]{2}[a-zA-Z]?:", body, re.MULTILINE):
+                    errors.append("Block 4 body does not contain valid SWIFT MT tags.")
+
+            # Block 5 Check (Optional): Trailers {5:{MAC:xxxx}{CHK:xxxx}}
+            if "{5:" in text_data:
+                if not re.search(r"\{5:(\{.*?\})+\}", text_data):
+                    errors.append("Malformed Block 5 (Trailers/Checksums).")
+
+            if errors:
+                return ValidationReport(is_valid=False, errors=errors)
+            return ValidationReport(is_valid=True, errors=[])
+
+        return ValidationReport(
+            is_valid=False,
+            errors=["Unrecognized message format. Payload does not match XML or SWIFT MT structures."],
+        )
+
+    @staticmethod
     def validate(message: PaymentMessage) -> ValidationReport:
         """
         Executes the full suite of validation rules against a parsed

@@ -7,5 +7,6 @@ from .builder import MessageBuilder
 from .models import PaymentMessage
 from .parser import OpenPurseParser
 from .translator import Translator
+from .validator import Validator
 
-__all__ = ["OpenPurseParser", "PaymentMessage", "Translator", "MessageBuilder"]
+__all__ = ["OpenPurseParser", "PaymentMessage", "Translator", "MessageBuilder", "Validator"]

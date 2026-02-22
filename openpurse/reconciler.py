@@ -1,6 +1,6 @@
 from typing import List
 
-from openpurse.models import Pain002Message, PaymentMessage
+from openpurse.models import Camt029Message, Camt056Message, Pain002Message, PaymentMessage
 
 
 class Reconciler:
@@ -16,22 +16,43 @@ class Reconciler:
         """
         Determines if two messages are logically linked.
 
-        Matches primarily on EndToEndId. Also checks MsgId for related status reports (pain.002).
-        If fuzzy_amount is True, allows matching even if amounts differ slightly (to handle fees).
+        Matches primarily on UETR or EndToEndId. Also checks MsgId for related
+        status reports or investigation flows.
         """
         id_match = False
 
-        # 1. Primary Logic: Exact End-to-End ID matching
-        if msg_a.end_to_end_id and str(msg_a.end_to_end_id).strip() != "":
-            if msg_a.end_to_end_id == msg_b.end_to_end_id:
-                id_match = True
+        # 1. Tier 1: UETR Matching (Authorized SWIFT tracking)
+        if msg_a.uetr and msg_a.uetr == msg_b.uetr:
+            id_match = True
 
-        # 2. Status Report Reference (pain.002 matching original MsgId)
+        # 2. Tier 2: End-to-End ID matching
+        if not id_match and msg_a.end_to_end_id and msg_a.end_to_end_id == msg_b.end_to_end_id:
+            id_match = True
+
+        # 3. Tier 3: Cross-reference logic for status/investigation reports
         if not id_match:
+            # Pain.002 Status Reports
             if isinstance(msg_a, Pain002Message) and msg_a.original_message_id == msg_b.message_id:
                 id_match = True
             elif (
                 isinstance(msg_b, Pain002Message) and msg_b.original_message_id == msg_a.message_id
+            ):
+                id_match = True
+
+            # Camt.056 Recall Requests
+            elif isinstance(msg_a, Camt056Message) and msg_a.original_message_id == msg_b.message_id:
+                id_match = True
+            elif (
+                isinstance(msg_b, Camt056Message) and msg_b.original_message_id == msg_a.message_id
+            ):
+                id_match = True
+
+            # Camt.029 Resolution Cases
+            elif (
+                isinstance(msg_a, (Camt029Message, Camt056Message))
+                and isinstance(msg_b, (Camt029Message, Camt056Message))
+                and msg_a.case_id == msg_b.case_id
+                and msg_a.case_id is not None
             ):
                 id_match = True
 

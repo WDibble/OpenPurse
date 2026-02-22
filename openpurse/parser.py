@@ -6,9 +6,11 @@ from lxml import etree
 
 from openpurse.models import (
     Camt004Message,
+    Camt029Message,
     Camt052Message,
     Camt053Message,
     Camt054Message,
+    Camt056Message,
     Pacs008Message,
     Pain001Message,
     Pain002Message,
@@ -63,6 +65,7 @@ class OpenPurseParser:
 
         self.tree = None
         self.ns = {}
+        self.bah_data: Dict[str, Optional[str]] = {}
 
         if not self.is_mt:
             try:
@@ -79,8 +82,52 @@ class OpenPurseParser:
                 if self.default_ns:
                     self.ns = {"ns": self.default_ns}
 
+                # --- BAH (head.001) Integration ---
+                # Detect if the root is a BAH or a wrapper containing a BAH
+                is_bah = "head.001" in (self.default_ns or "")
+                app_hdr_nodes = self.tree.xpath(".//*[local-name()='AppHdr']")
+
+                if is_bah or app_hdr_nodes:
+                    app_hdr = (
+                        self.tree
+                        if is_bah and self.tree.tag.endswith("AppHdr")
+                        else (app_hdr_nodes[0] if app_hdr_nodes else None)
+                    )
+                    if app_hdr is not None:
+                        self.bah_data = self._parse_bah(app_hdr)
+
+                    # Pivot context to the Document if it exists
+                    doc_nodes = self.tree.xpath(".//*[local-name()='Document']")
+                    if doc_nodes:
+                        self.tree = doc_nodes[0]
+                        self.nsmap = self.tree.nsmap
+                        self.default_ns = self.nsmap.get(None)
+                        if self.default_ns:
+                            self.ns = {"ns": self.default_ns}
+                        else:
+                            self.ns = {}
+
             except (etree.XMLSyntaxError, ValueError, TypeError):
                 self.tree = None
+
+    def _parse_bah(self, app_hdr: Any) -> Dict[str, Optional[str]]:
+        """
+        Extracts core routing information from an ISO 20022 Business Application Header.
+        """
+
+        def find_text(xpath: str) -> Optional[str]:
+            res = app_hdr.xpath(xpath)
+            if res:
+                if isinstance(res[0], str):
+                    return res[0].strip()
+                return res[0].text.strip() if hasattr(res[0], "text") and res[0].text else None
+            return None
+
+        return {
+            "sender_bic": find_text(".//*[local-name()='Fr']//*[local-name()='BICFI']/text()"),
+            "receiver_bic": find_text(".//*[local-name()='To']//*[local-name()='BICFI']/text()"),
+            "message_id": find_text(".//*[local-name()='BizMsgIdr']/text()"),
+        }
 
     def validate_schema(self) -> "ValidationReport":
         """
@@ -407,17 +454,19 @@ class OpenPurseParser:
         creditor_address = self._parse_address(cdtr_el[0]) if cdtr_el else None
 
         return PaymentMessage(
-            message_id=self._get_text("//ns:MsgId/text()"),
+            message_id=self._get_text("//ns:MsgId/text()") or self.bah_data.get("message_id"),
             end_to_end_id=self._get_text("//ns:EndToEndId/text()"),
             uetr=self._get_text("//ns:UETR/text()"),
             amount=self._get_text("//*[@Ccy][1]/text()"),
             currency=self._get_text("//*[@Ccy][1]/@Ccy"),
             sender_bic=self._get_text(
                 "//ns:InstgAgt//ns:BICFI/text() | //ns:InitgPty//ns:AnyBIC/text() | //ns:InstgAgt//ns:Othr/ns:Id/text()"
-            ),
+            )
+            or self.bah_data.get("sender_bic"),
             receiver_bic=self._get_text(
                 "//ns:InstdAgt//ns:BICFI/text() | //ns:CdtrAgt//ns:BICFI/text() | //ns:Svcr//ns:BICFI/text()"
-            ),
+            )
+            or self.bah_data.get("receiver_bic"),
             debtor_name=self._get_text("//ns:Dbtr/ns:Nm/text()"),
             creditor_name=self._get_text("//ns:Cdtr/ns:Nm/text()"),
             debtor_address=debtor_address,
@@ -529,6 +578,12 @@ class OpenPurseParser:
             return self._parse_pain002_detailed(base_msg)
 
         # Fallback to base
+        if "camt.056" in ns_str:
+            return self._parse_camt056()
+
+        if "camt.029" in ns_str:
+            return self._parse_camt029()
+
         return base_msg
 
     def _parse_camt054_detailed(self, base_msg: PaymentMessage) -> Camt054Message:
@@ -896,6 +951,95 @@ class OpenPurseParser:
             ),
             group_status=self._get_text("//ns:OrgnlGrpInfAndSts/ns:GrpSts/text()"),
             transactions_status=statuses,
+        )
+
+    def _parse_camt056(self) -> Camt056Message:
+        """
+        Parses CAMT.056 FIToFI Customer Credit Transfer Recall.
+        """
+        base = self.parse()
+
+        original_grp_info = self._get_nodes("//ns:OrgnlGrpInf")
+        orig_msg_id = None
+        orig_msg_nm_id = None
+        if original_grp_info:
+            orig_msg_id = self._get_text_from(original_grp_info[0], "./ns:OrgnlMsgId/text()")
+            orig_msg_nm_id = self._get_text_from(original_grp_info[0], "./ns:OrgnlMsgNmId/text()")
+
+        recall_reason = self._get_text(
+            "//ns:OrgnlTxRef/ns:Rsn/ns:Prtry/text() | //ns:OrgnlTxRef/ns:Rsn/ns:Cd/text()"
+        )
+
+        transactions = []
+        for tx in self._get_nodes("//ns:Undrlyg"):
+            tx_id = self._get_text_from(tx, ".//ns:OrgnlEndToEndId/text()")
+            tx_uetr = self._get_text_from(tx, ".//ns:OrgnlUETR/text()")
+            transactions.append({"end_to_end_id": tx_id, "uetr": tx_uetr})
+
+        promoted_uetr = base.uetr or (transactions[0]["uetr"] if transactions else None)
+        promoted_e2e = base.end_to_end_id or (
+            transactions[0]["end_to_end_id"] if transactions else None
+        )
+
+        return Camt056Message(
+            message_id=base.message_id,
+            end_to_end_id=promoted_e2e,
+            uetr=promoted_uetr,
+            amount=base.amount,
+            currency=base.currency,
+            sender_bic=base.sender_bic,
+            receiver_bic=base.receiver_bic,
+            creation_date_time=self._get_text("//ns:CreDtTm/text()"),
+            assignment_id=self._get_text("//ns:Assgnmt/ns:Id/text()"),
+            case_id=self._get_text("//ns:Case/ns:Id/text()"),
+            original_message_id=orig_msg_id,
+            original_message_name_id=orig_msg_nm_id,
+            recall_reason=recall_reason,
+            underlying_transactions=transactions,
+        )
+
+    def _parse_camt029(self) -> Camt029Message:
+        """
+        Parses CAMT.029 Resolution Of Investigation.
+        """
+        base = self.parse()
+
+        status_node = self._get_nodes("//ns:Sts")
+        investigation_status = None
+        if status_node:
+            investigation_status = self._get_text_from(
+                status_node[0], "./ns:Conf/text() | ./ns:Prtry/text() | ./ns:Cd/text()"
+            )
+
+        cancellation_details = []
+        for detail in self._get_nodes("//ns:CxlDtls"):
+            orig_id = self._get_text_from(detail, ".//ns:OrgnlEndToEndId/text()")
+            orig_uetr = self._get_text_from(detail, ".//ns:OrgnlUETR/text()")
+            cxl_sts = self._get_text_from(detail, ".//ns:TxCxlSts/text()")
+            cancellation_details.append(
+                {"end_to_end_id": orig_id, "uetr": orig_uetr, "status": cxl_sts}
+            )
+
+        promoted_uetr = base.uetr or (
+            cancellation_details[0]["uetr"] if cancellation_details else None
+        )
+        promoted_e2e = base.end_to_end_id or (
+            cancellation_details[0]["end_to_end_id"] if cancellation_details else None
+        )
+
+        return Camt029Message(
+            message_id=base.message_id,
+            end_to_end_id=promoted_e2e,
+            uetr=promoted_uetr,
+            amount=base.amount,
+            currency=base.currency,
+            sender_bic=base.sender_bic,
+            receiver_bic=base.receiver_bic,
+            creation_date_time=self._get_text("//ns:CreDtTm/text()"),
+            assignment_id=self._get_text("//ns:Assgnmt/ns:Id/text()"),
+            case_id=self._get_text("//ns:Case/ns:Id/text()"),
+            investigation_status=investigation_status,
+            cancellation_details=cancellation_details,
         )
 
     def flatten(self) -> Dict[str, Any]:

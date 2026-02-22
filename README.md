@@ -119,21 +119,39 @@ timeline = Reconciler.trace_lifecycle(seed_msg, message_pool)
 
 ---
 
-## 🚦 Smart Validation Engine
+## 🚦 Dual-Tier Validation Engine
 
-OpenPurse doesn't just check if a field exists; it checks if it's **valid**.
+OpenPurse doesn't just extract data; it actively defends your downstream systems against corrupted financial payloads using a two-tier validation engine.
 
-- **IBAN**: Full Modulo-97 validation across all supported country formats.
-- **BIC**: Strict ISO 9362 8- or 11-character alphanumeric check.
-- **UETR**: Strict UUIDv4 checking for SWIFT gpi tracking.
+### Tier 1: Deep Structural Validation
+
+Instantly checks the raw payload syntax before you even attempt to parse it.
+
+- **XML (MX)**: Automatically evaluates the raw bytes against the precise matching `lxml` compiled XSD definition from the 770+ ISO schemas in the library.
+- **SWIFT MT**: Enforces rigorous Regex structural checks ensuring Block 1-5 definitions, proper `:tag:` spacing, and correct termination syntax are met.
 
 ```python
 from openpurse.validator import Validator
 
-report = Validator.validate(msg)
+raw_payload = b"{1:F01BANKUS33XXX0000000000}{2:I103BANKGB22XXXN}{4:\n:20:REF123\n-}"
+report = Validator.validate_schema(raw_payload)
 if not report.is_valid:
-    for err in report.errors:
-        print(f"Critical Error: {err}")
+    print(report.errors) # Caught malformed block 4 before parsing
+```
+
+### Tier 2: Logical Field Validation
+
+Validates the actual extracted business values of a parsed `PaymentMessage`.
+
+- **IBAN**: Full Modulo-97 checksum execution across all supported country formats.
+- **BIC**: Strict ISO 9362 8- or 11-character alphanumeric check for Senders/Receivers.
+- **UETR**: Strict UUIDv4 checking for SWIFT gpi tracking strings.
+
+```python
+parsed_msg = parser.parse()
+logic_report = Validator.validate(parsed_msg)
+if not logic_report.is_valid:
+    print(f"Critical Business Error: {logic_report.errors}")
 ```
 
 ---

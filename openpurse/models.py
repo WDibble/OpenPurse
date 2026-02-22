@@ -224,6 +224,36 @@ class Pain002Message(PaymentMessage):
 
 
 @dataclass
+class Camt056Message(PaymentMessage):
+    """
+    Detailed schema for CAMT.056 FIToFI Customer Credit Transfer Recall.
+    Used to request the recall of a previously sent payment.
+    """
+
+    creation_date_time: Optional[str] = None
+    assignment_id: Optional[str] = None
+    case_id: Optional[str] = None
+    original_message_id: Optional[str] = None
+    original_message_name_id: Optional[str] = None
+    recall_reason: Optional[str] = None
+    underlying_transactions: Optional[list] = None
+
+
+@dataclass
+class Camt029Message(PaymentMessage):
+    """
+    Detailed schema for CAMT.029 Resolution Of Investigation.
+    Used to respond to a recall request or an investigation.
+    """
+
+    creation_date_time: Optional[str] = None
+    assignment_id: Optional[str] = None
+    case_id: Optional[str] = None
+    investigation_status: Optional[str] = None  # Accepted / Rejected
+    cancellation_details: Optional[list] = None
+
+
+@dataclass
 class ValidationReport:
     """
     Standardized report returning the analytical state of a validated PaymentMessage.

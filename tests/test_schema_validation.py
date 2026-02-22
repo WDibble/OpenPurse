@@ -40,10 +40,28 @@ def test_invalid_schema_namespace():
     assert any("Unsupported namespace" in err for err in report.errors)
 
 
-def test_mt_validation_rejection():
-    mt_msg = b"{1:F01BANKUS33XXX0000000000}{2:I103BANKGB22XXXN}{4:\n-}"
-    parser = OpenPurseParser(mt_msg)
-    report = parser.validate_schema()
+def test_mt_validation_valid():
+    from openpurse.validator import Validator
+    mt_msg = b"{1:F01BANKUS33XXX0000000000}{2:I103BANKGB22XXXN}{4:\n:20:REF123\n:32A:231024USD1000,\n-}{5:{MAC:12A34B}}"
+    report = Validator.validate_schema(mt_msg)
+
+    assert report.is_valid is True
+    assert len(report.errors) == 0
+
+def test_mt_validation_broken_block4():
+    from openpurse.validator import Validator
+    # Missing the terminating -} string
+    mt_msg = b"{1:F01BANKUS33XXX0000000000}{2:I103BANKGB22XXXN}{4:\n:20:REF123\n:32A:231024USD1000,"
+    report = Validator.validate_schema(mt_msg)
 
     assert report.is_valid is False
-    assert report.errors[0] == "Schema validation is not applicable to SWIFT MT block formats."
+    assert any("Invalid or missing Block 4" in err for err in report.errors)
+
+def test_mt_validation_invalid_tag():
+    from openpurse.validator import Validator
+    # Block 4 is intact but has raw unstructured text inside, breaking Regex
+    mt_msg = b"{1:F01BANKUS33XXX0000000000}{2:I103BANKGB22XXXN}{4:\nThis is not a valid SWIFT MT format.\n-}"
+    report = Validator.validate_schema(mt_msg)
+
+    assert report.is_valid is False
+    assert any("Block 4 body does not contain valid SWIFT MT tags" in err for err in report.errors)
