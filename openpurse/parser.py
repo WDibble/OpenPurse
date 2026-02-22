@@ -201,7 +201,9 @@ class OpenPurseParser:
             debtor_name=self._get_text('//ns:Dbtr/ns:Nm/text()'),
             creditor_name=self._get_text('//ns:Cdtr/ns:Nm/text()'),
             debtor_address=debtor_address,
-            creditor_address=creditor_address
+            creditor_address=creditor_address,
+            debtor_account=self._get_text('//ns:DbtrAcct/ns:Id/ns:IBAN/text() | //ns:DbtrAcct/ns:Id/ns:Othr/ns:Id/text()'),
+            creditor_account=self._get_text('//ns:CdtrAcct/ns:Id/ns:IBAN/text() | //ns:CdtrAcct/ns:Id/ns:Othr/ns:Id/text()')
         )
 
     def _get_nodes(self, xpath_expr: str) -> list:

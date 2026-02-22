@@ -45,6 +45,10 @@ class PaymentMessage:
             The structured geographic and postal location of the debtor.
         creditor_address (Optional[PostalAddress]):
             The structured geographic and postal location of the creditor.
+        debtor_account (Optional[str]):
+            The primary account identifier (like IBAN or BBAN) for the debtor.
+        creditor_account (Optional[str]):
+            The primary account identifier (like IBAN or BBAN) for the creditor.
     """
     message_id: Optional[str] = None
     end_to_end_id: Optional[str] = None
@@ -56,6 +60,8 @@ class PaymentMessage:
     creditor_name: Optional[str] = None
     debtor_address: Optional[PostalAddress] = None
     creditor_address: Optional[PostalAddress] = None
+    debtor_account: Optional[str] = None
+    creditor_account: Optional[str] = None
     
     def to_dict(self) -> dict:
         """
