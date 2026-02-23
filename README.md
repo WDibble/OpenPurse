@@ -206,6 +206,13 @@ openpurse persist message.xml --db-url sqlite:///production.db
 
 ## 🔍 Exporter: Automated API Specs
 
+Generate standard OpenAPI 3.0 / JSON Schema specifications from your OpenPurse models, making it easy to share your financial data structures with other teams or documentation tools.
+
+```bash
+# Generate openapi.json for your treasury API
+python3 scripts/export_schema.py --format json > openapi.json
+```
+
 ---
 
 ## ⚖️ Performance Benchmarks (Qualitative)
